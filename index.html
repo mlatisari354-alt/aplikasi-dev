@@ -2,463 +2,335 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Absensi LPQ Baitussyukur Mlatisari</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi LPQ Baitussyukur</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- HTML5 QRCode -->
+    <!-- Dependencies (QR, Chart, Excel, PDF) -->
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS (Excel) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- jsPDF & AutoTable (PDF) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
-    <!-- Konfigurasi Tailwind -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d', 950: '#1f5939' },
-                        accent: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
-                        oranye: { 500: '#f58f00', 600: '#e07f00' },
-                        bglight: '#eef8f3'
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        accent: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
                     }
                 }
             }
         }
     </script>
-    
     <style>
-        /* CSS Murni tanpa paksaan z-index berlebihan karena sudah di GitHub */
-        html, body { 
-            margin: 0; 
-            padding: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            overflow: hidden; 
-            background-color: #eef8f3; 
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-
+        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; overflow-x: hidden; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Modifikasi Scanner */
-        #reader { width: 100%; border-radius: 1rem; overflow: hidden; border: none !important; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); background-color: #000; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #reader { width: 100%; border-radius: 1rem; overflow: hidden; border: none !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         #reader video { border-radius: 1rem; object-fit: cover; }
     </style>
 </head>
 <body class="text-gray-800 antialiased h-screen flex flex-col overflow-hidden">
 
-    <!-- APP WRAPPER: Tidak perlu lagi z-index ekstrim di GitHub -->
-    <div id="app-wrapper" class="fixed inset-0 w-full h-full bg-slate-50 flex flex-col overflow-hidden">
-        
-        <!-- VIEW 0: LANDING PAGE (Sudah diperbaiki, tidak memanjang ke bawah) -->
-        <div id="view-landing" class="absolute inset-0 z-[100] bg-bglight flex items-center justify-center p-4 transition-transform duration-500 ease-in-out">
-            <div class="bg-[#1f402e] w-full max-w-[340px] rounded-3xl p-8 text-center text-white shadow-2xl relative flex flex-col items-center">
-                
-                <!-- Logo Custom -->
-                <div class="relative w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 border-[3px] border-accent-400 shadow-[0_0_15px_rgba(251,191,36,0.3)] p-1">
-                    <div class="w-full h-full border border-yellow-100 rounded-full flex items-center justify-center relative bg-white">
-                        <div class="text-[#1f402e] flex flex-col items-center z-10">
-                            <i class="fa-regular fa-star text-[10px] mb-0.5"></i>
-                            <i class="fa-solid fa-book-open text-xl"></i>
-                        </div>
-                    </div>
+    <!-- VIEW 0: LANDING PAGE -->
+    <div id="view-landing" class="fixed inset-0 z-50 bg-brand-50 flex items-center justify-center p-4 transition-transform duration-500 ease-in-out">
+        <div class="bg-[#1a472a] w-full max-w-sm rounded-[2rem] p-8 text-center text-white shadow-2xl relative overflow-hidden flex flex-col justify-between" style="min-height: 500px;">
+            <div class="absolute inset-0 bg-black opacity-10"></div>
+            <div class="relative z-10 flex flex-col items-center mt-6">
+                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-lg border-4 border-brand-100">
+                    <i class="fa-solid fa-book-quran text-[#1a472a] text-4xl"></i>
                 </div>
-
-                <!-- Teks Utama -->
-                <h1 class="text-[20px] font-extrabold mb-3 leading-tight tracking-wide">
-                    SISTEM ABSENSI<br>LPQ BAITUSSYUKUR<br>MLATISARI
-                </h1>
-                <p class="text-green-50 text-xs font-medium opacity-90 leading-relaxed mb-6">
-                    Siap untuk memantau kehadiran hari ini?
-                </p>
-                <p class="text-[11px] text-accent-400 font-semibold">
-                    Kelompok Mlatisari Semarang Barat
-                </p>
-                
-                <div class="w-10 h-[2px] bg-accent-400 mx-auto mt-3 mb-8 rounded-full opacity-50"></div>
-
-                <!-- Tombol Oranye -->
-                <button onclick="app.showDashboard()" class="w-full bg-[#f58f00] hover:bg-[#e07f00] text-white font-bold tracking-widest py-3.5 rounded-full shadow-[0_4px_15px_-3px_rgba(245,143,0,0.6)] transition transform hover:-translate-y-0.5 active:scale-95 text-base">
-                    MULAI
-                </button>
-                <p class="text-[9px] mt-5 text-green-200/50 font-medium">Sistem Manajemen Kelompok & Absensi</p>
+                <h1 class="text-2xl font-bold mb-3 leading-tight tracking-wide">SISTEM ABSENSI<br>LPQ BAITUSSYUKUR<br>MLATISARI</h1>
+                <p class="text-brand-100 text-sm font-medium mb-8">Siap untuk memantau kehadiran hari ini?</p>
+                <p class="text-[#f59e0b] text-xs font-bold mb-8">Kelompok Mlatisari Semarang Barat</p>
+            </div>
+            <div class="relative z-10 w-full mb-6 mt-4">
+                <button onclick="app.showDashboard()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95 text-lg">MULAI</button>
+                <div class="w-16 h-1 bg-white/20 rounded-full mx-auto mt-6"></div>
+                <p class="text-[10px] mt-4 text-brand-200">Sistem Manajemen Kelompok & Absensi</p>
             </div>
         </div>
-
-        <!-- MAIN APP LAYOUT (Hidden Initially) -->
-        <div id="main-layout" class="hidden w-full h-full flex-col md:flex-row bg-[#f8fafc] absolute inset-0 z-[50]">
-            
-            <!-- SIDEBAR (Desktop) -->
-            <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full shadow-sm z-20 transition-all duration-300 relative">
-                <div class="p-6 flex items-center justify-between border-b border-gray-100">
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <div class="w-10 h-10 bg-brand-100 text-brand-700 rounded-xl flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-mosque text-lg"></i>
-                        </div>
-                        <div id="sidebar-brand" class="whitespace-nowrap">
-                            <h2 class="font-bold text-gray-800 leading-tight">Baitussyukur</h2>
-                            <p class="text-xs text-gray-500">Admin Dashboard</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                    <button onclick="app.navigate('dashboard')" data-target="dashboard" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-house w-5 text-center"></i> <span class="sidebar-text">Home</span>
-                    </button>
-                    <button onclick="app.navigate('scanner')" data-target="scanner" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-qrcode w-5 text-center"></i> <span class="sidebar-text">Scan Barcode</span>
-                    </button>
-                    <button onclick="app.navigate('manual')" data-target="manual" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-clipboard-user w-5 text-center"></i> <span class="sidebar-text">Absensi Manual</span>
-                    </button>
-                    <button onclick="app.navigate('presentasi')" data-target="presentasi" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span class="sidebar-text">Presentasi</span>
-                    </button>
-                    <button onclick="app.navigate('settings')" data-target="settings" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-gear w-5 text-center"></i> <span class="sidebar-text">Pengaturan</span>
-                    </button>
-                </nav>
-
-                <button onclick="app.toggleSidebar()" class="absolute -right-4 top-20 bg-white border border-gray-200 w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-brand-600 shadow-md">
-                    <i id="sidebar-icon" class="fa-solid fa-chevron-left text-xs"></i>
-                </button>
-            </aside>
-
-            <!-- CONTENT AREA -->
-            <main class="flex-1 h-full flex flex-col bg-[#f8fafc] w-full overflow-hidden relative">
-                
-                <!-- HEADER MOBILE & DESKTOP -->
-                <header class="bg-brand-800 text-white p-4 md:px-8 md:py-5 flex justify-between items-center shadow-md z-10 shrink-0 relative overflow-hidden">
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl"></div>
-                    <div>
-                        <h2 class="font-bold text-lg md:text-xl tracking-wide flex items-center gap-2">
-                            <i class="fa-solid fa-mosque md:hidden"></i> LPQ Baitussyukur
-                        </h2>
-                        <p class="text-xs text-brand-200 md:hidden">Mlatisari Semarang Barat</p>
-                    </div>
-                    
-                    <!-- Tombol Refresh / Sinkronisasi di Kanan -->
-                    <button onclick="app.syncData(true)" class="relative z-10 bg-white/20 hover:bg-white/30 text-white rounded-lg px-3.5 py-2 text-xs font-bold flex items-center gap-2 transition active:scale-95 border border-white/20 backdrop-blur-sm shadow-sm" title="Sinkronkan Data">
-                        <i class="fa-solid fa-rotate"></i>
-                        <span class="hidden sm:inline">Refresh</span>
-                    </button>
-                </header>
-
-                <!-- SCROLLABLE CONTENT -->
-                <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 w-full relative">
-                    
-                    <div id="view-dashboard" class="fade-in max-w-5xl mx-auto hidden">
-                        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row items-center gap-6">
-                            <div class="w-20 h-20 bg-brand-100 rounded-full flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-user-shield text-3xl text-brand-600"></i>
-                            </div>
-                            <div class="text-center md:text-left">
-                                <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, Pengurus!</h2>
-                                <p class="text-gray-500 mt-1">Pilih menu di bawah atau di samping untuk mulai memantau absensi hari ini.</p>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <button onclick="app.navigate('scanner')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
-                                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition"><i class="fa-solid fa-qrcode text-xl"></i></div>
-                                <span class="font-bold text-gray-700 text-sm">Scan QR</span>
-                            </button>
-                            <button onclick="app.navigate('manual')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
-                                <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition"><i class="fa-solid fa-clipboard-user text-xl"></i></div>
-                                <span class="font-bold text-gray-700 text-sm">Manual</span>
-                            </button>
-                            <button onclick="app.navigate('presentasi')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
-                                <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition"><i class="fa-solid fa-chart-pie text-xl"></i></div>
-                                <span class="font-bold text-gray-700 text-sm">Presentasi</span>
-                            </button>
-                            <button onclick="app.navigate('settings')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
-                                <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition"><i class="fa-solid fa-gear text-xl"></i></div>
-                                <span class="font-bold text-gray-700 text-sm">Pengaturan</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="view-scanner" class="fade-in max-w-lg mx-auto hidden">
-                        <div class="bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
-                            <h3 class="font-bold text-xl mb-2 text-gray-800">Scan Barcode/QR</h3>
-                            <p class="text-sm text-gray-500 mb-6">Arahkan kamera ke kartu siswa</p>
-                            <div id="reader" class="mb-4 bg-gray-50 min-h-[250px] flex items-center justify-center text-gray-400">Loading kamera...</div>
-                            <button onclick="app.navigate('dashboard')" class="text-sm font-bold text-brand-600 bg-brand-50 px-6 py-3 rounded-xl hover:bg-brand-100 transition w-full">Kembali</button>
-                        </div>
-                    </div>
-
-                    <div id="view-manual" class="fade-in max-w-5xl mx-auto hidden">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                            <div class="flex flex-col">
-                                <h3 class="font-bold text-xl text-gray-800">Absensi Manual</h3>
-                                <p class="text-xs text-gray-500">Pilih status santri untuk hari ini.</p>
-                            </div>
-                            <div class="flex items-center gap-3 w-full md:w-auto">
-                                <input type="date" id="input-date" class="w-full md:w-auto p-2.5 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-gray-50">
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-100/50 p-1.5 rounded-xl flex gap-1 mb-6 shadow-inner max-w-md mx-auto md:mx-0 border border-gray-200">
-                            <button id="btn-tab-mlatisari" onclick="app.setManualTab('Mlatisari')" class="flex-1 py-2 text-sm font-semibold rounded-lg shadow-sm bg-white text-brand-800 transition">Mlatisari</button>
-                            <button id="btn-tab-cilosari" onclick="app.setManualTab('Cilosari')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-700 transition">Cilosari</button>
-                        </div>
-
-                        <div id="manual-student-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
-                        
-                        <!-- FAB Save Button -->
-                        <div class="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-40">
-                            <button onclick="app.saveManualAbsensi()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-6 py-4 rounded-full shadow-xl flex items-center gap-3 transform hover:scale-105 transition-all">
-                                <i class="fa-solid fa-floppy-disk text-lg"></i>
-                                <span class="hidden md:inline">Simpan Absensi</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="view-presentasi" class="fade-in max-w-5xl mx-auto hidden flex-col">
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex flex-wrap gap-4 items-center justify-between">
-                            <div class="flex gap-2">
-                                <button onclick="app.showPresentationMode('kelas')" class="bg-brand-700 text-white px-5 py-3 rounded-xl font-bold text-sm shadow flex items-center gap-2 hover:bg-brand-800 transition"><i class="fa-solid fa-users"></i> Per Kelas</button>
-                                <button onclick="app.showPresentationMode('banding')" class="bg-white border border-gray-200 text-gray-700 px-5 py-3 rounded-xl font-bold text-sm shadow-sm flex items-center gap-2 hover:bg-gray-50 transition"><i class="fa-solid fa-code-compare"></i> Bandingkan</button>
-                            </div>
-                            <div class="flex items-center gap-2 text-xs md:text-sm font-bold text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 w-full md:w-auto">
-                                <span>Dari:</span><input type="date" id="pres-start" class="bg-transparent outline-none cursor-pointer" onchange="app.renderPresentasiData()">
-                                <span>s/d:</span><input type="date" id="pres-end" class="bg-transparent outline-none cursor-pointer" onchange="app.renderPresentasiData()">
-                            </div>
-                        </div>
-
-                        <!-- Mode Kelas Carousel -->
-                        <div id="presentation-carousel" class="flex-1 flex flex-col justify-center relative min-h-[60vh] bg-gray-100/50 rounded-3xl border border-gray-200 p-4 md:p-10 hidden">
-                            <button onclick="app.prevSlide()" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-600 hover:bg-brand-50 hover:scale-110 transition z-10 text-xl"><i class="fa-solid fa-chevron-left"></i></button>
-                            <button onclick="app.nextSlide()" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-600 hover:bg-brand-50 hover:scale-110 transition z-10 text-xl"><i class="fa-solid fa-chevron-right"></i></button>
-                            <div id="slide-content" class="w-full text-center transition-all duration-300 transform"></div>
-                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-gray-500 shadow-sm border border-white" id="slide-counter">1 / 1</div>
-                        </div>
-
-                        <!-- Mode Bandingkan -->
-                        <div id="presentation-compare" class="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-100 flex-col items-center justify-center hidden min-h-[60vh]">
-                            <h3 class="font-bold text-xl md:text-2xl text-gray-800 mb-2">Perbandingan Kehadiran</h3>
-                            <p class="text-sm text-gray-500 mb-8 font-medium">Mlatisari vs Cilosari</p>
-                            <div class="w-full max-w-sm relative">
-                                <canvas id="doughnutChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="view-settings" class="fade-in max-w-6xl mx-auto hidden flex-col">
-                        <h2 class="font-bold text-2xl mb-6 text-gray-800 px-2">Pengaturan & Laporan</h2>
-                        
-                        <!-- Tabs -->
-                        <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mb-6 flex overflow-x-auto hide-scrollbar gap-2">
-                            <button id="tab-data" onclick="app.setSettingTab('data')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg bg-brand-100 text-brand-800 whitespace-nowrap transition">Data Siswa</button>
-                            <button id="tab-jadwal" onclick="app.setSettingTab('jadwal')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 whitespace-nowrap hover:bg-gray-50 transition">Jadwal Pengajian</button>
-                            <button id="tab-rekap" onclick="app.setSettingTab('rekap')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 whitespace-nowrap hover:bg-gray-50 transition">Rekap Laporan</button>
-                        </div>
-
-                        <!-- Sub 1: Data Siswa -->
-                        <div id="setting-data" class="bg-white rounded-2xl shadow-sm border border-gray-100 flex-col overflow-hidden">
-                            <div class="p-4 md:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50">
-                                <div>
-                                    <h3 class="font-bold text-lg text-gray-800">Manajemen Santri</h3>
-                                    <p class="text-xs text-gray-500 mt-1">Total: <span id="total-siswa" class="font-bold text-brand-600">0</span></p>
-                                </div>
-                                <div class="flex gap-2 w-full md:w-auto">
-                                    <input type="text" id="new-student-name" placeholder="Nama Lengkap" class="flex-1 md:w-48 p-2 text-sm border rounded-lg focus:ring-1 focus:ring-brand-500 outline-none">
-                                    <select id="new-student-group" class="p-2 text-sm border rounded-lg outline-none bg-white">
-                                        <option value="Mlatisari">Mlatisari</option><option value="Cilosari">Cilosari</option>
-                                    </select>
-                                    <button onclick="app.addStudent()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                            </div>
-                            <div class="overflow-x-auto w-full">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 text-gray-500 font-medium"><tr><th class="p-3 pl-4 md:pl-6">Nama Santri</th><th class="p-3">Kelompok</th><th class="p-3 pr-4 md:pr-6 text-right">Aksi</th></tr></thead>
-                                    <tbody id="student-table-body" class="divide-y divide-gray-100"></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Sub 2: Jadwal Pengajian -->
-                        <div id="setting-jadwal" class="bg-white rounded-2xl shadow-sm border border-gray-100 flex-col p-4 md:p-6 hidden">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                                <div>
-                                    <h3 class="font-bold text-lg text-gray-800">Pengaturan Kegiatan Pengajian</h3>
-                                    <p class="text-xs text-gray-500">Klik tanggal untuk ubah status Masuk/Libur.</p>
-                                </div>
-                                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                                    <div class="bg-gray-100 p-1 rounded-lg flex gap-1 w-full md:w-auto text-sm">
-                                        <button id="btn-jadwal-mlatisari" onclick="app.setJadwalTab('Mlatisari')" class="px-4 py-2 font-bold rounded-md bg-white text-brand-800 shadow transition flex-1">Mlatisari</button>
-                                        <button id="btn-jadwal-cilosari" onclick="app.setJadwalTab('Cilosari')" class="px-4 py-2 font-bold rounded-md text-gray-500 transition flex-1">Cilosari</button>
-                                    </div>
-                                    <input type="month" id="jadwal-month" class="p-2 border rounded-lg text-sm font-bold text-gray-700 outline-none w-full md:w-auto bg-gray-50 cursor-pointer" onchange="app.renderJadwal()">
-                                    <button onclick="app.setLiburRutin()" class="w-full md:w-auto bg-gray-900 text-white px-4 py-2 text-sm font-bold rounded-lg hover:bg-gray-800 transition shadow-sm">Terapkan Libur Sab-Min</button>
-                                </div>
-                            </div>
-                            <div id="calendar-grid" class="grid grid-cols-7 gap-1 md:gap-3 text-center border-t pt-4"></div>
-                        </div>
-
-                        <!-- Sub 3: Rekap Laporan -->
-                        <div id="setting-rekap" class="hidden flex-col">
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
-                                <div class="p-4 border-b flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
-                                    <div class="flex items-center gap-2 text-xs md:text-sm font-bold text-gray-600 w-full md:w-auto">
-                                        <span>Dari:</span><input type="date" id="rekap-start" class="bg-white p-1.5 border rounded cursor-pointer w-full md:w-auto" onchange="app.renderRekapTables()">
-                                        <span>s/d:</span><input type="date" id="rekap-end" class="bg-white p-1.5 border rounded cursor-pointer w-full md:w-auto" onchange="app.renderRekapTables()">
-                                    </div>
-                                    <div class="flex gap-2 w-full md:w-auto">
-                                        <button onclick="app.exportToPDF()" class="flex-1 md:flex-none bg-red-600 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-bold shadow hover:bg-red-700 transition flex items-center justify-center gap-2"><i class="fa-regular fa-file-pdf"></i> Export PDF</button>
-                                        <button onclick="app.exportToExcel()" class="flex-1 md:flex-none bg-green-600 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-bold shadow hover:bg-green-700 transition flex items-center justify-center gap-2"><i class="fa-regular fa-file-excel"></i> Export Excel</button>
-                                    </div>
-                                </div>
-                                <div class="flex border-b overflow-x-auto hide-scrollbar bg-white">
-                                    <button id="tab-rekap-ringkasan" onclick="app.setRekapView('ringkasan')" class="px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-800 transition whitespace-nowrap">Grafik Ringkasan</button>
-                                    <button id="tab-rekap-detail" onclick="app.setRekapView('detail')" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 transition whitespace-nowrap">Laporan Bulanan</button>
-                                    <button id="tab-rekap-grid" onclick="app.setRekapView('grid')" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 transition whitespace-nowrap">Tabel Persentase</button>
-                                </div>
-                            </div>
-                            <div id="rekap-content-area" class="w-full"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </main>
-
-            <!-- BOTTOM NAV (Mobile) -->
-            <nav class="md:hidden bg-white border-t border-gray-200 flex justify-around p-2 pb-4 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] z-20 shrink-0 absolute bottom-0 w-full">
-                <button onclick="app.navigate('dashboard')" data-target="dashboard" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition">
-                    <i class="fa-solid fa-house text-lg"></i> <span class="text-[10px] font-bold">Home</span>
-                </button>
-                <button onclick="app.navigate('scanner')" data-target="scanner" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition">
-                    <i class="fa-solid fa-qrcode text-lg"></i> <span class="text-[10px] font-bold">Scan</span>
-                </button>
-                <button onclick="app.navigate('manual')" data-target="manual" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition relative">
-                    <i class="fa-solid fa-clipboard-user text-lg"></i> <span class="text-[10px] font-bold">Manual</span>
-                </button>
-                <button onclick="app.navigate('settings')" data-target="settings" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition">
-                    <i class="fa-solid fa-gear text-lg"></i> <span class="text-[10px] font-bold">Settings</span>
-                </button>
-            </nav>
-        </div>
-
-        <!-- Modal QR -->
-        <div id="qr-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] hidden flex items-center justify-center p-4 fade-in">
-            <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm text-center shadow-2xl relative">
-                <button onclick="app.closeQRModal()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 transition"><i class="fa-solid fa-xmark"></i></button>
-                <h3 id="qr-modal-name" class="font-bold text-xl text-gray-800 mb-1 mt-2">Nama</h3>
-                <p id="qr-modal-group" class="text-sm text-brand-600 font-semibold mb-6">Kelompok</p>
-                <div id="qrcode-container" class="flex justify-center mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-100"></div>
-                <button onclick="app.downloadQR()" class="bg-gray-900 text-white font-bold px-6 py-3 rounded-xl w-full shadow-md hover:bg-black transition flex justify-center items-center gap-2"><i class="fa-solid fa-download"></i> Download QR</button>
-            </div>
-        </div>
-
     </div>
 
+    <!-- MAIN APP LAYOUT -->
+    <div id="main-layout" class="hidden flex-1 h-screen w-full relative">
+        
+        <!-- SIDEBAR (Desktop) -->
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full shadow-sm z-20 transition-all duration-300 relative">
+            <div class="p-6 flex items-center justify-between border-b border-gray-100">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 bg-brand-100 text-brand-700 rounded-xl flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-mosque text-lg"></i>
+                    </div>
+                    <div id="sidebar-brand" class="whitespace-nowrap">
+                        <h2 class="font-bold text-gray-800 leading-tight">Baitussyukur</h2>
+                        <p class="text-xs text-gray-500">Admin Dashboard</p>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="app.navigate('dashboard')" data-target="dashboard" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-house w-5 text-center"></i> <span class="sidebar-text">Home</span></button>
+                <button onclick="app.navigate('scanner')" data-target="scanner" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-qrcode w-5 text-center"></i> <span class="sidebar-text">Scan Barcode</span></button>
+                <button onclick="app.navigate('manual')" data-target="manual" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-clipboard-user w-5 text-center"></i> <span class="sidebar-text">Absensi Manual</span></button>
+                <button onclick="app.navigate('presentasi')" data-target="presentasi" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> <span class="sidebar-text">Presentasi</span></button>
+                <button onclick="app.navigate('settings')" data-target="settings" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-gear w-5 text-center"></i> <span class="sidebar-text">Pengaturan</span></button>
+            </nav>
+            <button onclick="app.toggleSidebar()" class="absolute -right-4 top-20 bg-white border w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-brand-600 shadow-md"><i id="sidebar-icon" class="fa-solid fa-chevron-left text-xs"></i></button>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 h-full flex flex-col bg-[#f8fafc] w-full overflow-hidden relative">
+            
+            <!-- HEADER -->
+            <header class="bg-[#1a472a] text-white p-4 md:px-8 md:py-5 flex justify-between items-center shadow-md z-10 shrink-0 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl"></div>
+                <div>
+                    <h2 class="font-bold text-lg md:text-xl tracking-wide flex items-center gap-2"><i class="fa-solid fa-mosque md:hidden"></i> LPQ Baitussyukur</h2>
+                    <p class="text-xs text-brand-200 md:hidden">Mlatisari Semarang Barat</p>
+                </div>
+                <button onclick="app.syncData()" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 border border-white/20">
+                    <i class="fa-solid fa-arrows-rotate"></i> <span class="hidden md:inline">Sinkron</span>
+                </button>
+            </header>
+
+            <!-- SCROLLABLE CONTENT -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 w-full relative">
+                
+                <!-- VIEW 1: DASHBOARD -->
+                <div id="view-dashboard" class="fade-in max-w-5xl mx-auto hidden">
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row items-center gap-6">
+                        <div class="w-20 h-20 bg-brand-100 rounded-full flex items-center justify-center shrink-0"><i class="fa-solid fa-user-shield text-3xl text-brand-600"></i></div>
+                        <div class="text-center md:text-left">
+                            <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, Admin!</h2>
+                            <p class="text-gray-500 mt-1">Pilih menu di bawah atau di samping untuk mulai memantau absensi hari ini.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button onclick="app.navigate('scanner')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
+                            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition"><i class="fa-solid fa-qrcode text-xl"></i></div>
+                            <span class="font-bold text-gray-700 text-sm">Scan QR</span>
+                        </button>
+                        <button onclick="app.navigate('manual')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
+                            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition"><i class="fa-solid fa-clipboard-user text-xl"></i></div>
+                            <span class="font-bold text-gray-700 text-sm">Manual</span>
+                        </button>
+                        <button onclick="app.navigate('presentasi')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
+                            <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition"><i class="fa-solid fa-chart-pie text-xl"></i></div>
+                            <span class="font-bold text-gray-700 text-sm">Presentasi</span>
+                        </button>
+                        <button onclick="app.navigate('settings')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-3 hover:border-brand-500 hover:shadow-md transition group">
+                            <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition"><i class="fa-solid fa-gear text-xl"></i></div>
+                            <span class="font-bold text-gray-700 text-sm">Pengaturan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: SCANNER -->
+                <div id="view-scanner" class="fade-in max-w-lg mx-auto hidden">
+                    <div class="bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
+                        <h3 class="font-bold text-xl mb-2 text-gray-800">Scan Barcode/QR</h3>
+                        <p class="text-sm text-gray-500 mb-6">Arahkan kamera ke kartu siswa</p>
+                        <div id="reader" class="mb-4 bg-gray-50 min-h-[250px] flex items-center justify-center text-gray-400">Loading Kamera...</div>
+                        <button onclick="app.navigate('dashboard')" class="text-sm font-bold text-brand-600 bg-brand-50 px-6 py-3 rounded-xl hover:bg-brand-100 transition w-full">Tutup Kamera</button>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: MANUAL -->
+                <div id="view-manual" class="fade-in max-w-5xl mx-auto hidden">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border">
+                        <div class="flex flex-col">
+                            <h3 class="font-bold text-xl text-gray-800">Absensi Manual</h3>
+                            <p class="text-xs text-gray-500">Pilih status santri untuk hari ini.</p>
+                        </div>
+                        <input type="date" id="input-date" class="p-2.5 border rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-gray-50 w-full md:w-auto">
+                    </div>
+
+                    <div class="bg-gray-100 p-1.5 rounded-xl flex gap-1 mb-6 shadow-inner max-w-md mx-auto md:mx-0 border">
+                        <button id="btn-tab-mlatisari" onclick="app.setManualTab('Mlatisari')" class="flex-1 py-2 text-sm font-semibold rounded-lg shadow-sm bg-white text-brand-800 transition">Mlatisari</button>
+                        <button id="btn-tab-cilosari" onclick="app.setManualTab('Cilosari')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-700 transition">Cilosari</button>
+                    </div>
+
+                    <div id="manual-student-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
+                    
+                    <div class="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-40">
+                        <button onclick="app.saveManualAbsensi()" class="bg-[#1a472a] hover:bg-[#143620] text-white font-bold px-6 py-4 rounded-full shadow-xl flex items-center gap-3 transform hover:scale-105 transition-all">
+                            <i class="fa-solid fa-floppy-disk text-lg"></i><span class="hidden md:inline">Simpan Absensi</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: PRESENTASI -->
+                <div id="view-presentasi" class="fade-in max-w-5xl mx-auto hidden flex-col">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border mb-6 flex flex-wrap gap-4 items-center justify-between">
+                        <div class="flex gap-2">
+                            <button onclick="app.showPresentationMode('kelas')" class="bg-brand-700 text-white px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-brand-800"><i class="fa-solid fa-users"></i> Per Kelas</button>
+                            <button onclick="app.showPresentationMode('banding')" class="bg-white border text-gray-700 px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-gray-50"><i class="fa-solid fa-code-compare"></i> Bandingkan</button>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs md:text-sm font-bold text-gray-600 bg-gray-50 p-2 rounded-lg border w-full md:w-auto">
+                            <span>Dari:</span><input type="date" id="pres-start" class="bg-transparent outline-none cursor-pointer" onchange="app.renderPresentasiData()">
+                            <span>s/d:</span><input type="date" id="pres-end" class="bg-transparent outline-none cursor-pointer" onchange="app.renderPresentasiData()">
+                        </div>
+                    </div>
+
+                    <div id="presentation-carousel" class="flex-1 flex flex-col justify-center relative min-h-[60vh] bg-gray-100/50 rounded-3xl border p-4 md:p-10 hidden">
+                        <button onclick="app.prevSlide()" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-600 hover:scale-110 z-10"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="app.nextSlide()" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-600 hover:scale-110 z-10"><i class="fa-solid fa-chevron-right"></i></button>
+                        <div id="slide-content" class="w-full text-center transition-all duration-300"></div>
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 px-4 py-1.5 rounded-full text-xs font-bold text-gray-500 border border-white" id="slide-counter">1 / 1</div>
+                    </div>
+
+                    <div id="presentation-compare" class="bg-white p-6 rounded-3xl shadow-sm border flex-col items-center justify-center hidden min-h-[60vh]">
+                        <h3 class="font-bold text-xl md:text-2xl text-gray-800 mb-2">Perbandingan Kehadiran</h3>
+                        <div class="w-full max-w-sm relative"><canvas id="doughnutChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: SETTINGS -->
+                <div id="view-settings" class="fade-in max-w-6xl mx-auto hidden flex-col">
+                    <h2 class="font-bold text-2xl mb-6 text-gray-800 px-2">Pengaturan & Laporan</h2>
+                    
+                    <div class="bg-white p-2 rounded-xl shadow-sm border mb-6 flex overflow-x-auto hide-scrollbar gap-2">
+                        <button id="tab-data" onclick="app.setSettingTab('data')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg bg-brand-100 text-brand-800 transition whitespace-nowrap">Data Siswa</button>
+                        <button id="tab-jadwal" onclick="app.setSettingTab('jadwal')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 hover:bg-gray-50 transition whitespace-nowrap">Jadwal Pengajian</button>
+                        <button id="tab-rekap" onclick="app.setSettingTab('rekap')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 hover:bg-gray-50 transition whitespace-nowrap">Rekap Laporan</button>
+                    </div>
+
+                    <!-- Sub 1: Data Siswa -->
+                    <div id="setting-data" class="bg-white rounded-2xl shadow-sm border flex-col overflow-hidden">
+                        <div class="p-4 md:p-6 border-b flex flex-col md:flex-row justify-between gap-4 bg-gray-50/50">
+                            <div><h3 class="font-bold text-lg text-gray-800">Manajemen Santri</h3><p class="text-xs text-gray-500">Total: <span id="total-siswa" class="font-bold text-brand-600">0</span></p></div>
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <input type="text" id="new-student-name" placeholder="Nama Lengkap" class="flex-1 md:w-48 p-2 text-sm border rounded-lg focus:ring-1 outline-none">
+                                <select id="new-student-group" class="p-2 text-sm border rounded-lg outline-none bg-white"><option value="Mlatisari">Mlatisari</option><option value="Cilosari">Cilosari</option></select>
+                                <button onclick="app.addStudent()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-gray-50 text-gray-500 font-medium"><tr><th class="p-3 pl-4">Nama Santri</th><th class="p-3">Kelompok</th><th class="p-3 pr-4 text-right">Aksi</th></tr></thead>
+                                <tbody id="student-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sub 2: Jadwal Pengajian -->
+                    <div id="setting-jadwal" class="bg-white rounded-2xl shadow-sm border flex-col p-4 md:p-6 hidden">
+                        <div class="flex flex-col md:flex-row justify-between gap-4 mb-6">
+                            <div><h3 class="font-bold text-lg text-gray-800">Kegiatan Pengajian</h3><p class="text-xs text-gray-500">Klik tanggal untuk ubah status Masuk/Libur.</p></div>
+                            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                                <div class="bg-gray-100 p-1 rounded-lg flex gap-1 w-full md:w-auto text-sm">
+                                    <button id="btn-jadwal-mlatisari" onclick="app.setJadwalTab('Mlatisari')" class="px-4 py-2 font-bold rounded-md bg-white text-brand-800 shadow transition flex-1">Mlatisari</button>
+                                    <button id="btn-jadwal-cilosari" onclick="app.setJadwalTab('Cilosari')" class="px-4 py-2 font-bold rounded-md text-gray-500 transition flex-1">Cilosari</button>
+                                </div>
+                                <input type="month" id="jadwal-month" class="p-2 border rounded-lg text-sm font-bold outline-none cursor-pointer" onchange="app.renderJadwal()">
+                                <button onclick="app.setLiburRutin()" class="w-full md:w-auto bg-gray-900 text-white px-4 py-2 text-sm font-bold rounded-lg hover:bg-gray-800 transition">Terapkan Libur Sab-Min</button>
+                            </div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1 md:gap-3 text-center border-t pt-4"></div>
+                    </div>
+
+                    <!-- Sub 3: Rekap Laporan -->
+                    <div id="setting-rekap" class="hidden flex-col">
+                        <div class="bg-white rounded-2xl shadow-sm border mb-4 overflow-hidden">
+                            <div class="p-4 border-b flex flex-col md:flex-row justify-between gap-4 bg-gray-50">
+                                <div class="flex items-center gap-2 text-xs md:text-sm font-bold text-gray-600">
+                                    <span>Dari:</span><input type="date" id="rekap-start" class="bg-white p-1.5 border rounded cursor-pointer" onchange="app.renderRekapTables()">
+                                    <span>s/d:</span><input type="date" id="rekap-end" class="bg-white p-1.5 border rounded cursor-pointer" onchange="app.renderRekapTables()">
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="app.exportToPDF()" class="flex-1 md:flex-none bg-red-600 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-bold shadow hover:bg-red-700 transition flex items-center justify-center gap-2"><i class="fa-regular fa-file-pdf"></i> Export PDF</button>
+                                    <button onclick="app.exportToExcel()" class="flex-1 md:flex-none bg-green-600 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-bold shadow hover:bg-green-700 transition flex items-center justify-center gap-2"><i class="fa-regular fa-file-excel"></i> Export Excel</button>
+                                </div>
+                            </div>
+                            <div class="flex border-b overflow-x-auto hide-scrollbar bg-white">
+                                <button id="tab-rekap-ringkasan" onclick="app.setRekapView('ringkasan')" class="px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-800 whitespace-nowrap">Grafik Ringkasan</button>
+                                <button id="tab-rekap-detail" onclick="app.setRekapView('detail')" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 whitespace-nowrap">Laporan Bulanan</button>
+                                <button id="tab-rekap-grid" onclick="app.setRekapView('grid')" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 whitespace-nowrap">Tabel Persentase</button>
+                            </div>
+                        </div>
+                        <div id="rekap-content-area" class="w-full"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- BOTTOM NAV (Mobile) -->
+        <nav class="md:hidden bg-white border-t border-gray-200 flex justify-around p-2 pb-4 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] z-20 shrink-0 absolute bottom-0 w-full">
+            <button onclick="app.navigate('dashboard')" data-target="dashboard" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition"><i class="fa-solid fa-house text-lg"></i> <span class="text-[10px] font-bold">Home</span></button>
+            <button onclick="app.navigate('scanner')" data-target="scanner" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition"><i class="fa-solid fa-qrcode text-lg"></i> <span class="text-[10px] font-bold">Scan</span></button>
+            <button onclick="app.navigate('manual')" data-target="manual" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition relative"><i class="fa-solid fa-clipboard-user text-lg"></i> <span class="text-[10px] font-bold">Manual</span></button>
+            <button onclick="app.navigate('settings')" data-target="settings" class="nav-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 transition"><i class="fa-solid fa-gear text-lg"></i> <span class="text-[10px] font-bold">Settings</span></button>
+        </nav>
+    </div>
+
+    <!-- Modal QR -->
+    <div id="qr-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 fade-in">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm text-center shadow-2xl relative">
+            <button onclick="app.closeQRModal()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 transition"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="qr-modal-name" class="font-bold text-xl text-gray-800 mb-1 mt-2">Nama</h3>
+            <p id="qr-modal-group" class="text-sm text-brand-600 font-semibold mb-6">Kelompok</p>
+            <div id="qrcode-container" class="flex justify-center mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-100"></div>
+            <button onclick="app.downloadQR()" class="bg-gray-900 text-white font-bold px-6 py-3 rounded-xl w-full shadow-md hover:bg-black transition flex justify-center items-center gap-2"><i class="fa-solid fa-download"></i> Download QR</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP LOGIC -->
     <script>
         // === CONFIGURATION ===
-        // VVVVVV GANTI TEXT DI BAWAH INI DENGAN URL DEPLOY ANDA VVVVVV
-        const GAS_URL = https://script.google.com/macros/s/AKfycbzpMjIOO2xNrsFkoLpZKs0Kn4l1Fu5tPlwmUe2B1jegTUBQmJSCtY_UZLfiQM7ivlhrlw/exec"; 
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        
+        // PENTING: Ganti URL di dalam TANDA KUTIP dengan URL Web App Anda. 
+        // JANGAN MENGHAPUS TANDA KUTIP (" ") NYA!
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbw6HpW4nzzoxslC0Ryl6PShM2q6gHtxGUcJZhSyC-ht3FpY1HXGwnyxiSN9uGhDKUEYmQ/exec"; 
+        
+        // =======================
 
         const app = {
-            students: [],
-            attendance: [],
-            jadwal: [],
-            currentView: 'dashboard',
-            manualFilter: 'Mlatisari',
-            scanner: null,
-            tempAbsensi: {}, 
-            slides: [],
-            currentSlideIndex: 0,
-            charts: { bar: null, doughnut: null },
-            sidebarMinimized: false,
-            jadwalFilter: 'Mlatisari',
-            rekapViewMode: 'ringkasan',
-            presentasiMode: 'kelas',
+            students: [], attendance: [], jadwal: [],
+            currentView: 'dashboard', manualFilter: 'Mlatisari', scanner: null, tempAbsensi: {}, 
+            slides: [], currentSlideIndex: 0, charts: { bar: null, doughnut: null },
+            sidebarMinimized: false, jadwalFilter: 'Mlatisari', rekapViewMode: 'ringkasan', presentasiMode: 'kelas',
 
-            // PENGECEKAN URL
-            checkGASUrl: function() {
-                if (GAS_URL === "https://script.google.com/macros/s/AKfycbzpMjIOO2xNrsFkoLpZKs0Kn4l1Fu5tPlwmUe2B1jegTUBQmJSCtY_UZLfiQM7ivlhrlw/exec" || !GAS_URL.startsWith("http")) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'URL GAS Belum Diisi!',
-                        html: 'Sistem mendeteksi Anda belum memasukkan URL Google Apps Script.<br><br>Silakan buka kode HTML Anda, cari tulisan <b><code>const GAS_URL = "ISI_URL_DEPLOY_GAS_DISINI";</code></b> lalu ganti dengan URL Deploy Anda.',
-                        confirmButtonColor: '#16a34a'
-                    });
-                    return false;
-                }
-                return true;
-            },
-
-            // HELPER: Pop-Up Loading 
-            showLoading: function(text = 'Memproses...') {
-                Swal.fire({
-                    title: text,
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
-            },
-
-            // HELPER: Fetch API
+            // HELPER FETCH API
             apiCall: async function(actionData) {
-                if (!this.checkGASUrl()) throw new Error("URL_ERROR");
-                try {
-                    const response = await fetch(GAS_URL, { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        redirect: 'follow', 
-                        body: JSON.stringify(actionData)
-                    });
-                    return await response.json();
-                } catch(error) {
-                    console.error("Fetch Error Detail:", error);
-                    throw new Error("FETCH_ERROR");
+                if(!GAS_URL || !GAS_URL.startsWith("http") || GAS_URL.includes("ISI_DENGAN")) {
+                    Swal.fire({icon: 'error', title: 'URL GAS Belum Diisi', text: 'Silakan isi const GAS_URL dengan URL Web App Google Script Anda di dalam file HTML.'});
+                    throw new Error("URL GAS INVALID");
                 }
+                return await fetch(GAS_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(actionData)
+                }).then(res => res.json());
             },
 
             init: async function() {
-                // Di GitHub, kita tidak butuh mixin khusus karena lingkungan bersih
-                // dari campur tangan template luar. SweetAlert akan jalan normal.
-
-                localStorage.removeItem('dummy_siswa');
-                localStorage.removeItem('dummy_absensi');
-                localStorage.removeItem('dummy_jadwal');
-
                 const today = new Date();
-                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                
                 const fmt = (d) => d.toISOString().split('T')[0];
-                
                 document.getElementById('input-date').value = fmt(today);
                 document.getElementById('jadwal-month').value = today.toISOString().slice(0,7);
-                document.getElementById('rekap-start').value = fmt(firstDay);
-                document.getElementById('rekap-end').value = fmt(lastDay);
-                document.getElementById('pres-start').value = fmt(firstDay);
-                document.getElementById('pres-end').value = fmt(lastDay);
+                document.getElementById('rekap-start').value = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
+                document.getElementById('rekap-end').value = fmt(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+                document.getElementById('pres-start').value = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
+                document.getElementById('pres-end').value = fmt(new Date(today.getFullYear(), today.getMonth() + 1, 0));
                 
+                if(GAS_URL.includes("ISI_DENGAN")) return; // Cegah error fetch jika URL masih default
                 await this.syncData();
             },
 
             formatIdDate: function(dateStr) {
                 if(!dateStr) return '';
-                const options = { day: 'numeric', month: 'short', year: 'numeric' };
-                return new Date(dateStr).toLocaleDateString('id-ID', options);
+                return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
             },
 
             toggleSidebar: function() {
@@ -482,6 +354,10 @@
             },
 
             showDashboard: function() {
+                if(GAS_URL.includes("ISI_DENGAN")) {
+                    Swal.fire({icon: 'error', title: 'Aplikasi Belum Siap', text: 'Anda belum memasukkan URL Google Apps Script ke dalam baris kode (GAS_URL).'});
+                    return;
+                }
                 document.getElementById('view-landing').style.transform = 'translateY(-100%)';
                 setTimeout(() => {
                     document.getElementById('view-landing').classList.add('hidden');
@@ -496,7 +372,6 @@
                     this.scanner.clear().catch(e => console.log(e));
                     this.scanner = null;
                 }
-
                 ['view-dashboard', 'view-scanner', 'view-manual', 'view-settings', 'view-presentasi'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.classList.add('hidden');
@@ -509,7 +384,6 @@
                 }
                 
                 this.currentView = viewId;
-
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.remove('text-brand-600', 'md:bg-brand-50');
                     btn.classList.add('text-gray-400');
@@ -526,23 +400,18 @@
                     document.getElementById('presentation-carousel').classList.add('hidden');
                 }
                 if(viewId === 'settings') {
-                    this.renderStudentTable();
-                    this.renderJadwal();
-                    this.renderRekapTables();
+                    this.renderStudentTable(); this.renderJadwal(); this.renderRekapTables();
                 }
             },
 
             setSettingTab: function(tabName) {
                 ['data', 'jadwal', 'rekap'].forEach(name => {
                     document.getElementById(`setting-${name}`).classList.add('hidden');
-                    const btn = document.getElementById(`tab-${name}`);
-                    btn.className = "px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 whitespace-nowrap transition";
+                    document.getElementById(`tab-${name}`).className = "px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 whitespace-nowrap transition";
                 });
                 document.getElementById(`setting-${tabName}`).classList.remove('hidden');
                 document.getElementById(`setting-${tabName}`).classList.add('flex');
-                
-                const activeBtn = document.getElementById(`tab-${tabName}`);
-                activeBtn.className = "px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg bg-brand-100 text-brand-800 whitespace-nowrap transition";
+                document.getElementById(`tab-${tabName}`).className = "px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg bg-brand-100 text-brand-800 whitespace-nowrap transition";
                 
                 if(tabName === 'rekap') this.renderRekapTables();
                 if(tabName === 'jadwal') this.renderJadwal();
@@ -580,14 +449,10 @@
 
             setRekapView: function(mode) {
                 this.rekapViewMode = mode;
-                const tabs = ['ringkasan', 'detail', 'grid'];
-                tabs.forEach(t => {
+                ['ringkasan', 'detail', 'grid'].forEach(t => {
                     const btn = document.getElementById(`tab-rekap-${t}`);
-                    if(t === mode) {
-                        btn.className = "px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-800 transition whitespace-nowrap";
-                    } else {
-                        btn.className = "px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 transition whitespace-nowrap";
-                    }
+                    if(t === mode) btn.className = "px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-800 transition whitespace-nowrap";
+                    else btn.className = "px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 transition whitespace-nowrap";
                 });
                 this.renderRekapTables();
             },
@@ -618,31 +483,23 @@
                 return this.attendance.filter(a => a.Tanggal >= sDate && a.Tanggal <= eDate);
             },
 
-            syncData: async function(showToast = true) {
-                if (!this.checkGASUrl()) return;
-
-                if (showToast) this.showLoading('Menyinkronkan Data...');
+            syncData: async function() {
+                if(!GAS_URL.startsWith("http")) return; // Pencegahan jika URL kosong
+                Swal.fire({ title: 'Sinkronisasi...', text: 'Mengambil data dari server', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                 try {
                     const res = await fetch(`${GAS_URL}?action=get_all_data`);
                     const json = await res.json();
-                    
-                    // Hilangkan loading SweetAlert setelah sukses fetch (jika showToast aktif)
-                    if (showToast) Swal.close(); 
-                    
                     if(json.status === 'success') {
                         this.students = json.data.siswa || [];
                         this.attendance = json.data.absensi || [];
                         this.jadwal = json.data.jadwal || [];
-                        if(this.currentView === 'settings') {
-                            this.renderStudentTable(); this.renderJadwal(); this.renderRekapTables();
-                        }
-                        if(showToast) this.toast('success', 'Data berhasil ditarik');
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Data sinkron', timer: 1500, showConfirmButton: false });
+                        if(this.currentView === 'settings') { this.renderStudentTable(); this.renderJadwal(); this.renderRekapTables(); }
                     } else {
-                        if (showToast) this.toast('error', json.message || 'Gagal tersambung ke Database');
+                        Swal.fire({ icon: 'error', title: 'Error', text: json.message });
                     }
                 } catch(e) { 
-                    console.error("Sync Error:", e);
-                    if (showToast) Swal.fire('Error', 'Gagal menyinkronkan data. Cek koneksi atau URL GAS Anda.', 'error'); 
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: 'Cek koneksi internet Anda.' });
                 }
             },
 
@@ -675,24 +532,16 @@
                 const nama = document.getElementById('new-student-name').value;
                 const kelompok = document.getElementById('new-student-group').value;
                 if(!nama) return this.toast('warning', 'Nama wajib diisi');
-                
-                if (!this.checkGASUrl()) return;
 
                 const newSiswa = { ID_Siswa: 'LPQ-'+Date.now(), Nama: nama, Kelompok: kelompok, QR_Code: 'LPQ-'+Date.now() };
-                
-                this.showLoading('Menyimpan Siswa...');
+                Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                 try {
                     const json = await this.apiCall({ action: 'add_siswa', data: newSiswa });
                     if(json.status === 'success') { 
                         document.getElementById('new-student-name').value = ''; 
-                        await this.syncData(false);
-                        Swal.fire('Berhasil', 'Siswa berhasil ditambahkan', 'success');
-                    } else { 
-                        Swal.fire('Gagal', json.message, 'error');
-                    }
-                } catch(e) { 
-                    if(e.message !== "URL_ERROR") Swal.fire('Error', 'Gagal menambah siswa', 'error'); 
-                }
+                        await this.syncData();
+                    } else { Swal.fire('Error', json.message, 'error'); }
+                } catch(e) { Swal.fire('Error', 'Gagal menambah siswa', 'error'); }
             },
 
             editStudent: async function(id) {
@@ -708,53 +557,32 @@
                             <option value="Cilosari" ${student.Kelompok === 'Cilosari' ? 'selected' : ''}>Cilosari</option>
                         </select>
                     `,
-                    focusConfirm: false,
-                    showCancelButton: true,
-                    confirmButtonText: 'Simpan',
-                    confirmButtonColor: '#16a34a',
+                    focusConfirm: false, showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#16a34a',
                     preConfirm: () => { return { nama: document.getElementById('swal-input-nama').value, kelompok: document.getElementById('swal-input-kelompok').value } }
                 });
 
                 if (formValues) {
                     if(!formValues.nama) return this.toast('warning', 'Nama wajib diisi');
-                    if (!this.checkGASUrl()) return;
-                    
-                    this.showLoading('Menyimpan...');
+                    Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                     try {
                         const json = await this.apiCall({ action: 'update_siswa', data: { id: id, nama: formValues.nama, kelompok: formValues.kelompok } });
-                        if(json.status === 'success') { 
-                            await this.syncData(false); 
-                            Swal.fire('Berhasil', 'Data siswa diperbarui', 'success'); 
-                        }
-                        else { Swal.fire('Gagal', json.message, 'error'); }
-                    } catch(e) { 
-                        if(e.message !== "URL_ERROR") Swal.fire('Error', 'Gagal update siswa', 'error'); 
-                    }
+                        if(json.status === 'success') { await this.syncData(); }
+                        else { Swal.fire('Error', json.message, 'error'); }
+                    } catch(e) { Swal.fire('Error', 'Gagal update siswa', 'error'); }
                 }
             },
 
             deleteStudent: async function(id) {
-                const confirmation = await Swal.fire({
-                    title: 'Yakin hapus siswa?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Hapus!'
+                const confirmDelete = await Swal.fire({
+                    title: 'Yakin hapus siswa?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Ya, hapus!'
                 });
-
-                if(!confirmation.isConfirmed) return;
-                if (!this.checkGASUrl()) return;
-                
-                this.showLoading('Menghapus...');
-                try {
-                    const json = await this.apiCall({ action: 'delete_siswa', data: { id: id } });
-                    if(json.status === 'success') { 
-                        await this.syncData(false); 
-                        Swal.fire('Terhapus', 'Siswa telah dihapus', 'success');
-                    }
-                    else { Swal.fire('Gagal', json.message, 'error'); }
-                } catch(e) { 
-                    if(e.message !== "URL_ERROR") Swal.fire('Error', 'Gagal menghapus siswa', 'error'); 
+                if(confirmDelete.isConfirmed) {
+                    Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+                    try {
+                        const json = await this.apiCall({ action: 'delete_siswa', data: { id: id } });
+                        if(json.status === 'success') { await this.syncData(); }
+                        else { Swal.fire('Error', json.message, 'error'); }
+                    } catch(e) { Swal.fire('Error', 'Gagal menghapus', 'error'); }
                 }
             },
 
@@ -769,55 +597,26 @@
             downloadQR: function() {
                 const canvas = document.querySelector('#qrcode-container canvas');
                 if(canvas) {
-                    const a = document.createElement('a');
-                    a.href = canvas.toDataURL("image/png");
-                    a.download = `QR_${document.getElementById('qr-modal-name').innerText}.png`;
-                    a.click();
+                    const a = document.createElement('a'); a.href = canvas.toDataURL("image/png");
+                    a.download = `QR_${document.getElementById('qr-modal-name').innerText}.png`; a.click();
                 }
             },
 
             initScanner: function() {
                 if(this.scanner) return;
-                
+                document.getElementById('reader').innerHTML = ''; // bersihkan div kamera
                 setTimeout(() => {
-                    try {
-                        const readerElement = document.getElementById("reader");
-                        if (!readerElement) return;
-                        
-                        readerElement.innerHTML = ''; // Pastikan bersih sebelum mulai
-                        
-                        this.scanner = new Html5QrcodeScanner("reader", { 
-                            fps: 10, 
-                            qrbox: { width: 250, height: 250 },
-                            aspectRatio: 1.0,
-                            showTorchButtonIfSupported: true
-                        }, false);
-                        
-                        this.scanner.render((decodedText, decodedResult) => {
-                            const student = this.students.find(s => s.QR_Code === decodedText || s.ID_Siswa === decodedText);
-                            if(student) {
-                                if(this.scanner) {
-                                    this.scanner.clear().catch(e => console.warn(e));
-                                    this.scanner = null;
-                                }
-                                
-                                Swal.fire({
-                                    icon: 'success', title: 'Berhasil Scan!',
-                                    html: `<b>${student.Nama}</b><br>${student.Kelompok}<br>Hadir hari ini.`,
-                                    confirmButtonColor: '#16a34a'
-                                }).then(() => {
-                                    this.saveSingleAbsensi(student, 'Hadir', '');
-                                    this.navigate('dashboard');
-                                });
-                            } else { 
-                                this.toast('error', 'QR Code tidak terdaftar'); 
-                            }
-                        }, (error) => {});
-                    } catch (error) {
-                        console.error("Gagal inisiasi scanner:", error);
-                        Swal.fire('Akses Ditolak', 'Tidak dapat mengakses kamera. Pastikan browser diizinkan menggunakan kamera.', 'error');
-                    }
-                }, 600); // Jeda agar DOM siap dirender
+                    this.scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+                    this.scanner.render((decodedText, decodedResult) => {
+                        const student = this.students.find(s => s.QR_Code === decodedText || s.ID_Siswa === decodedText);
+                        if(student) {
+                            this.scanner.clear(); this.scanner = null;
+                            Swal.fire({
+                                icon: 'success', title: 'Berhasil Scan!', html: `<b>${student.Nama}</b><br>${student.Kelompok}<br>Hadir hari ini.`, confirmButtonColor: '#16a34a'
+                            }).then(() => { this.saveSingleAbsensi(student, 'Hadir', ''); });
+                        } else { this.toast('error', 'QR Code tidak terdaftar'); }
+                    }, (error) => { });
+                }, 600); // jeda agar aman
             },
 
             renderManualList: function() {
@@ -826,25 +625,19 @@
                 container.innerHTML = '';
                 const filtered = this.students.filter(s => s.Kelompok === this.manualFilter);
                 if(filtered.length === 0) {
-                    container.innerHTML = '<div class="col-span-2 text-center text-gray-400 py-10 text-sm">Belum ada siswa di kelompok ini.</div>';
-                    return;
+                    container.innerHTML = '<div class="col-span-2 text-center text-gray-400 py-10 text-sm">Belum ada siswa di kelompok ini.</div>'; return;
                 }
 
                 filtered.forEach(s => {
                     if(!this.tempAbsensi[s.ID_Siswa]) this.tempAbsensi[s.ID_Siswa] = { status: null, keterangan: '' };
-                    let st = this.tempAbsensi[s.ID_Siswa].status;
-                    let ket = this.tempAbsensi[s.ID_Siswa].keterangan;
-                    
-                    let bgCard = "bg-white border-gray-100 shadow-sm";
-                    let textName = "text-gray-800";
-                    let avatarColor = "#1abc9c"; 
+                    let st = this.tempAbsensi[s.ID_Siswa].status; let ket = this.tempAbsensi[s.ID_Siswa].keterangan;
+                    let bgCard = "bg-white border-gray-100 shadow-sm"; let textName = "text-gray-800"; let avatarColor = "#1abc9c"; 
 
                     if(st === 'Hadir') { bgCard = "bg-green-50 border-green-300 shadow-md"; textName = "text-green-900"; avatarColor="#16a34a"; }
                     else if(st === 'Izin') { bgCard = "bg-yellow-50 border-yellow-300 shadow-md"; textName = "text-yellow-900"; avatarColor="#eab308";}
                     else if(st === 'Alfa') { bgCard = "bg-red-50 border-red-300 shadow-md"; textName = "text-red-900"; avatarColor="#ef4444";}
                     
-                    const card = document.createElement('div');
-                    card.className = `p-4 md:p-5 rounded-2xl border flex flex-col gap-4 relative overflow-hidden transition-all duration-300 ${bgCard}`;
+                    const card = document.createElement('div'); card.className = `p-4 md:p-5 rounded-2xl border flex flex-col gap-4 relative overflow-hidden transition-all duration-300 ${bgCard}`;
                     const initials = s.Nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                     
                     card.innerHTML = `
@@ -877,18 +670,15 @@
             saveSingleAbsensi: async function(student, status, ket) {
                 const today = document.getElementById('input-date') ? document.getElementById('input-date').value : new Date().toISOString().split('T')[0];
                 const record = { Tanggal: today, ID_Siswa: student.ID_Siswa, Nama: student.Nama, Kelompok: student.Kelompok, Status: status, Keterangan: ket };
-                
                 try {
                     await this.apiCall({ action: 'save_absensi', data: [record] });
-                    this.syncData(false); // background sync
-                } catch(e) { 
-                    if(e.message !== "URL_ERROR") this.toast('error', 'Gagal menghubungkan ke cloud.'); 
-                }
+                    await this.syncData();
+                } catch(e) { console.error(e); }
             },
 
             saveManualAbsensi: async function() {
                 const date = document.getElementById('input-date').value;
-                if(!date) return Swal.fire('Peringatan', 'Tanggal kosong!', 'warning');
+                if(!date) return this.toast('error', 'Tanggal kosong!');
 
                 const toSave = [];
                 const currentGroupStudents = this.students.filter(s => s.Kelompok === this.manualFilter);
@@ -898,48 +688,27 @@
                     let st = this.tempAbsensi[student.ID_Siswa]?.status;
                     let ket = this.tempAbsensi[student.ID_Siswa]?.keterangan || '-';
 
-                    if (!st) {
-                        st = 'Alfa';
-                        ket = 'Otomatis Alfa (Tanpa Keterangan)';
-                    }
-
-                    if (st === 'Izin' && (!ket || ket === '-')) {
-                        return Swal.fire('Peringatan', `Alasan izin untuk ${student.Nama} wajib diisi!`, 'warning');
-                    }
-
+                    if (!st) { st = 'Alfa'; ket = 'Otomatis Alfa (Tanpa Keterangan)'; }
+                    if (st === 'Izin' && (!ket || ket === '-')) return this.toast('warning', `Alasan izin untuk ${student.Nama} wajib diisi!`);
                     toSave.push({ Tanggal: date, ID_Siswa: student.ID_Siswa, Nama: student.Nama, Kelompok: student.Kelompok, Status: st, Keterangan: ket });
                 }
 
-                if(toSave.length === 0) return Swal.fire('Kosong', 'Tidak ada siswa di kelas ini.', 'info');
-
-                if (!this.checkGASUrl()) return;
+                if(toSave.length === 0) return this.toast('warning', 'Tidak ada siswa di kelas ini.');
 
                 const confirmSave = await Swal.fire({
-                    title: 'Simpan Absensi?',
-                    text: 'Siswa yang belum Anda pilih statusnya akan otomatis ditandai ALFA. Lanjutkan?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#16a34a',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Simpan!'
+                    title: 'Simpan Absensi?', text: 'Siswa yang belum Anda pilih statusnya akan otomatis ditandai ALFA.',
+                    icon: 'warning', showCancelButton: true, confirmButtonColor: '#16a34a', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Simpan!'
                 });
-
                 if (!confirmSave.isConfirmed) return;
 
-                this.showLoading('Menyimpan Absensi...');
+                Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                 try {
                     const json = await this.apiCall({ action: 'save_absensi', data: toSave });
                     if(json.status === 'success') {
-                        this.tempAbsensi = {}; 
-                        this.renderManualList();
-                        await this.syncData(false);
-                        Swal.fire('Berhasil', 'Absensi disimpan ke Google Sheets', 'success');
-                    } else {
-                        Swal.fire('Gagal', json.message, 'error');
-                    }
-                } catch(e) { 
-                    if(e.message !== "URL_ERROR") Swal.fire('Error', 'Gagal menyimpan data ke Cloud', 'error'); 
-                }
+                        this.tempAbsensi = {}; await this.syncData(); this.renderManualList();
+                        Swal.fire('Berhasil', 'Absensi tersimpan', 'success');
+                    } else { Swal.fire('Error', json.message, 'error'); }
+                } catch(e) { Swal.fire('Error', 'Gagal menyimpan data', 'error'); }
             },
 
             renderJadwal: function() {
@@ -959,12 +728,10 @@
                 `;
                 
                 for(let i=0; i<firstDay; i++) { html += `<div></div>`; }
-                
                 for(let d=1; d<=daysInMonth; d++) {
                     const dateStr = `${year}-${month}-${String(d).padStart(2,'0')}`;
                     const j = this.jadwal.find(x => x.Tanggal === dateStr && x.Kelompok === kel);
-                    const isLibur = j && j.Status === 'Libur';
-                    const reason = isLibur ? j.Keterangan : '';
+                    const isLibur = j && j.Status === 'Libur'; const reason = isLibur ? j.Keterangan : '';
                     
                     const bgClass = isLibur ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100' : 'bg-green-50 border-green-300 text-brand-800 hover:bg-green-100';
                     const icon = isLibur ? '<i class="fa-solid fa-xmark mb-1"></i><br>LIBUR' : '<i class="fa-solid fa-check mb-1"></i><br>MASUK';
@@ -982,8 +749,7 @@
 
             toggleJadwal: async function(dateStr, kel) {
                 let j = this.jadwal.find(x => x.Tanggal === dateStr && x.Kelompok === kel);
-                let currentStatus = j ? j.Status : 'Masuk';
-                let currentKet = j ? j.Keterangan : '';
+                let currentStatus = j ? j.Status : 'Masuk'; let currentKet = j ? j.Keterangan : '';
                 
                 const { value: formValues } = await Swal.fire({
                     title: `Status Pengajian`,
@@ -995,26 +761,18 @@
                         </select>
                         <input id="swal-jadwal-ket" class="swal2-input mt-0 w-[80%]" placeholder="Alasan Libur (misal: Hujan Deras)" value="${currentKet}" style="display: ${currentStatus === 'Libur' ? 'block' : 'none'}">
                     `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Simpan', confirmButtonColor: '#16a34a',
+                    showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#16a34a',
                     preConfirm: () => { return { status: document.getElementById('swal-jadwal-status').value, keterangan: document.getElementById('swal-jadwal-ket').value } }
                 });
 
                 if (formValues) {
-                    if (!this.checkGASUrl()) return;
                     const record = { Tanggal: dateStr, Kelompok: kel, Status: formValues.status, Keterangan: formValues.status === 'Libur' ? formValues.keterangan : '' };
-                    
-                    this.showLoading('Menyimpan...');
+                    Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                     try {
                         const json = await this.apiCall({ action: 'save_jadwal', data: record });
-                        if(json.status === 'success') { 
-                            await this.syncData(false); 
-                            Swal.fire('Berhasil', 'Jadwal diupdate', 'success');
-                        }
-                        else { Swal.fire('Gagal', json.message, 'error'); }
-                    } catch(e) { 
-                        if(e.message !== "URL_ERROR") Swal.fire('Error', 'Gagal simpan jadwal', 'error'); 
-                    }
+                        if(json.status === 'success') { await this.syncData(); }
+                        else { Swal.fire('Error', json.message, 'error'); }
+                    } catch(e) { Swal.fire('Error', 'Gagal simpan jadwal', 'error'); }
                 }
             },
 
@@ -1024,17 +782,10 @@
                 if(!monthVal) return;
                 
                 const confirmation = await Swal.fire({
-                    title: 'Terapkan Libur Sab-Min?',
-                    text: `Jadikan hari Sabtu & Minggu di bulan ${monthVal} (${kel}) sebagai LIBUR RUTIN?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#111827',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Terapkan!'
+                    title: 'Terapkan Libur Sab-Min?', text: `Jadikan hari Sabtu & Minggu di bulan ${monthVal} (${kel}) sebagai LIBUR RUTIN?`,
+                    icon: 'question', showCancelButton: true, confirmButtonColor: '#111827', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Terapkan!'
                 });
-
                 if(!confirmation.isConfirmed) return;
-                if (!this.checkGASUrl()) return;
 
                 const [year, month] = monthVal.split('-');
                 const daysInMonth = new Date(year, month, 0).getDate();
@@ -1048,25 +799,18 @@
                     }
                 }
 
-                this.showLoading('Menerapkan...');
+                Swal.fire({ title: 'Menerapkan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                 try {
                     const json = await this.apiCall({ action: 'save_jadwal_batch', data: liburRecords });
-                    if (json.status === 'success') {
-                        await this.syncData(false);
-                        Swal.fire('Berhasil', 'Libur Sabtu-Minggu diterapkan', 'success');
-                    } else {
-                        Swal.fire('Gagal', json.message, 'error');
-                    }
-                } catch(e) { 
-                    if(e.message !== "URL_ERROR") Swal.fire('Error', 'Gagal mengirim ke Cloud', 'error'); 
-                }
+                    if (json.status === 'success') { await this.syncData(); } 
+                    else { Swal.fire('Error', json.message, 'error'); }
+                } catch(e) { Swal.fire('Error', 'Gagal mengirim ke Cloud', 'error'); }
             },
 
             renderRekapTables: function() {
                 const sDate = document.getElementById('rekap-start').value;
                 const eDate = document.getElementById('rekap-end').value;
                 if(!sDate || !eDate) return;
-                
                 const container = document.getElementById('rekap-content-area');
                 if(!container) return;
 
@@ -1124,12 +868,8 @@
                                 <table class="w-full text-center text-xs md:text-sm whitespace-nowrap min-w-max">
                                     <thead class="bg-gray-50 border-b border-gray-200">
                                         <tr>
-                                            <th class="p-3 border-r w-12 text-gray-500">No</th>
-                                            <th class="p-3 text-left border-r min-w-[200px] text-gray-700">Nama</th>
-                                            ${uniqueDates.map(d => {
-                                                const dObj = new Date(d);
-                                                return `<th class="p-3 border-r text-gray-700 font-bold">${dObj.toLocaleString('id-ID', { month: 'short', day: 'numeric' }).toUpperCase()}</th>`;
-                                            }).join('')}
+                                            <th class="p-3 border-r w-12 text-gray-500">No</th><th class="p-3 text-left border-r min-w-[200px] text-gray-700">Nama</th>
+                                            ${uniqueDates.map(d => `<th class="p-3 border-r text-gray-700 font-bold">${new Date(d).toLocaleString('id-ID', { month: 'short', day: 'numeric' }).toUpperCase()}</th>`).join('')}
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
@@ -1141,12 +881,10 @@
                         students.forEach((s, idx) => {
                             html += `
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="p-3 border-r font-medium text-gray-500">${idx+1}</td>
-                                    <td class="p-3 text-left font-bold text-gray-800 border-r">${s.Nama}</td>
+                                    <td class="p-3 border-r font-medium text-gray-500">${idx+1}</td><td class="p-3 text-left font-bold text-gray-800 border-r">${s.Nama}</td>
                                     ${uniqueDates.map(d => {
                                         const rec = absensiKelompok.find(a => a.Tanggal === d && a.ID_Siswa === s.ID_Siswa);
-                                        let st = rec ? rec.Status : '-';
-                                        let bgClass = 'bg-gray-50 text-gray-400';
+                                        let st = rec ? rec.Status : '-'; let bgClass = 'bg-gray-50 text-gray-400';
                                         if(st === 'Hadir') bgClass = 'bg-[#4ade80] text-white font-bold border-white';
                                         else if(st === 'Izin') bgClass = 'bg-yellow-400 text-white font-bold border-white';
                                         else if(st === 'Alfa') bgClass = 'bg-red-400 text-white font-bold border-white';
@@ -1204,9 +942,7 @@
                         
                         html += `
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="p-3 border-r text-gray-500 font-medium">${idx+1}</td>
-                                <td class="p-3 text-left font-bold text-gray-800 border-r">${s.Nama}</td>
-                                <td class="p-3 border-r text-gray-500 text-xs">${s.Kelompok}</td>
+                                <td class="p-3 border-r text-gray-500 font-medium">${idx+1}</td><td class="p-3 text-left font-bold text-gray-800 border-r">${s.Nama}</td><td class="p-3 border-r text-gray-500 text-xs">${s.Kelompok}</td>
                                 <td class="p-3 font-bold text-green-600">${totalPertemuan ? Math.round((h/t)*100)+'%' : '0%'}</td>
                                 <td class="p-3 font-bold text-yellow-500">${totalPertemuan ? Math.round((i/t)*100)+'%' : '0%'}</td>
                                 <td class="p-3 font-bold text-red-500">${totalPertemuan ? Math.round((a/t)*100)+'%' : '0%'}</td>
@@ -1228,76 +964,54 @@
                 this.students.forEach(s => {
                     let row = { 'ID Siswa': s.ID_Siswa, 'Nama': s.Nama, 'Kelompok': s.Kelompok };
                     let hadir=0, izin=0, alfa=0;
-                    
                     dates.forEach(d => {
                         const rec = attFiltered.find(a => a.ID_Siswa === s.ID_Siswa && a.Tanggal === d);
                         row[d] = rec ? rec.Status : '-';
-                        if(rec) {
-                            if(rec.Status==='Hadir') hadir++;
-                            else if(rec.Status==='Izin') izin++;
-                            else if(rec.Status==='Alfa') alfa++;
-                        }
+                        if(rec) { if(rec.Status==='Hadir') hadir++; else if(rec.Status==='Izin') izin++; else if(rec.Status==='Alfa') alfa++; }
                     });
-                    row['Total Hadir'] = hadir; row['Total Izin'] = izin; row['Total Alfa'] = alfa;
-                    exportData.push(row);
+                    row['Total Hadir'] = hadir; row['Total Izin'] = izin; row['Total Alfa'] = alfa; exportData.push(row);
                 });
 
-                const ws = XLSX.utils.json_to_sheet(exportData);
-                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(exportData); const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Rekap_Rentang");
                 XLSX.writeFile(wb, `Rekap_Absensi_LPQ_${document.getElementById('rekap-start').value}_sd_${document.getElementById('rekap-end').value}.xlsx`);
             },
 
             exportToPDF: function() {
-                if (this.rekapViewMode === 'ringkasan') {
-                    return Swal.fire('Peringatan', 'Buka tab "Laporan Bulanan" atau "Tabel Persentase" terlebih dahulu untuk Export PDF.', 'warning');
-                }
+                if (this.rekapViewMode === 'ringkasan') return Swal.fire('Peringatan', 'Buka tab Laporan Bulanan / Tabel Persentase terlebih dahulu', 'warning');
 
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('landscape'); 
+                const { jsPDF } = window.jspdf; const doc = new jsPDF('landscape'); 
                 const sDate = this.formatIdDate(document.getElementById('rekap-start').value);
                 const eDate = this.formatIdDate(document.getElementById('rekap-end').value);
 
-                doc.setFontSize(14);
-                doc.text(`Rekap Absensi LPQ Baitussyukur (${sDate} - ${eDate})`, 14, 15);
-
+                doc.setFontSize(14); doc.text(`Rekap Absensi LPQ Baitussyukur (${sDate} - ${eDate})`, 14, 15);
                 const tables = document.querySelectorAll('#rekap-content-area table');
-                if(tables.length === 0) return Swal.fire('Kosong', 'Tidak ada data tabel untuk diexport', 'info');
+                if(tables.length === 0) return Swal.fire('Kosong', 'Tidak ada data tabel', 'info');
 
                 let startY = 25;
                 tables.forEach((table, index) => {
                     const kelompokName = index === 0 ? 'Mlatisari' : 'Cilosari';
-                    doc.setFontSize(11);
-                    doc.text(`Tabel Kelompok ${kelompokName}`, 14, startY);
+                    doc.setFontSize(11); doc.text(`Tabel Kelompok ${kelompokName}`, 14, startY);
 
                     doc.autoTable({
-                        html: table,
-                        startY: startY + 4,
-                        theme: 'grid',
-                        styles: { fontSize: 8, cellPadding: 2 },
-                        headStyles: { fillColor: [37, 99, 235], textColor: 255 }, 
-                        alternateRowStyles: { fillColor: [249, 250, 251] },
-                        margin: { bottom: 15 }
+                        html: table, startY: startY + 4, theme: 'grid', styles: { fontSize: 8, cellPadding: 2 },
+                        headStyles: { fillColor: [37, 99, 235], textColor: 255 }, alternateRowStyles: { fillColor: [249, 250, 251] }, margin: { bottom: 15 }
                     });
                     
                     startY = doc.lastAutoTable.finalY + 15;
                     if (startY > doc.internal.pageSize.height - 20) { doc.addPage(); startY = 20; }
                 });
-
                 doc.save(`Rekap_Absensi_LPQ_${sDate}_sd_${eDate}.pdf`);
             },
 
             showPresentationMode: function(mode) {
                 this.presentasiMode = mode;
-                document.getElementById('presentation-compare').classList.add('hidden');
-                document.getElementById('presentation-carousel').classList.add('hidden');
+                document.getElementById('presentation-compare').classList.add('hidden'); document.getElementById('presentation-carousel').classList.add('hidden');
                 
                 if(mode === 'banding') {
-                    document.getElementById('presentation-compare').classList.remove('hidden');
-                    document.getElementById('presentation-compare').classList.add('flex');
+                    document.getElementById('presentation-compare').classList.remove('hidden'); document.getElementById('presentation-compare').classList.add('flex');
                 } else {
-                    document.getElementById('presentation-carousel').classList.remove('hidden');
-                    document.getElementById('presentation-carousel').classList.add('flex');
+                    document.getElementById('presentation-carousel').classList.remove('hidden'); document.getElementById('presentation-carousel').classList.add('flex');
                 }
                 this.renderPresentasiData();
             },
@@ -1313,10 +1027,7 @@
                         if(this.charts.doughnut) this.charts.doughnut.destroy();
                         this.charts.doughnut = new Chart(ctx, {
                             type: 'doughnut',
-                            data: {
-                                labels: ['Hadir Mlatisari', 'Hadir Cilosari'],
-                                datasets: [{ data: [stats.Mlatisari.Hadir, stats.Cilosari.Hadir], backgroundColor: ['#155724', '#f59e0b'], borderWidth: 0 }]
-                            },
+                            data: { labels: ['Hadir Mlatisari', 'Hadir Cilosari'], datasets: [{ data: [stats.Mlatisari.Hadir, stats.Cilosari.Hadir], backgroundColor: ['#155724', '#f59e0b'], borderWidth: 0 }] },
                             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
                         });
                     }
@@ -1326,7 +1037,7 @@
                     const grpCilosari = this.students.filter(s => s.Kelompok === 'Cilosari');
                     
                     this.slides.push(`
-                        <div class="bg-brand-800 text-white rounded-3xl p-10 shadow-inner transform transition duration-500 mx-auto max-w-sm">
+                        <div class="bg-[#1a472a] text-white rounded-3xl p-10 shadow-inner transform transition duration-500 mx-auto max-w-sm">
                             <i class="fa-solid fa-users text-5xl mb-6 text-accent-400"></i>
                             <h2 class="text-3xl font-bold mb-3">KELOMPOK MLATISARI</h2>
                             <p class="text-brand-100 font-medium text-lg">Total: <span class="text-accent-400 text-xl font-bold">${grpMlatisari.length}</span> Santri</p>
@@ -1335,7 +1046,7 @@
                     grpMlatisari.forEach(s => this.slides.push(this.generateSlideIndividu(s, attFiltered)));
 
                     this.slides.push(`
-                        <div class="bg-brand-800 text-white rounded-3xl p-10 shadow-inner transform transition duration-500 mx-auto max-w-sm">
+                        <div class="bg-[#1a472a] text-white rounded-3xl p-10 shadow-inner transform transition duration-500 mx-auto max-w-sm">
                             <i class="fa-solid fa-users text-5xl mb-6 text-accent-400"></i>
                             <h2 class="text-3xl font-bold mb-3">CABERAWIT CILOSARI</h2>
                             <p class="text-brand-100 font-medium text-lg">Total: <span class="text-accent-400 text-xl font-bold">${grpCilosari.length}</span> Santri</p>
@@ -1343,8 +1054,7 @@
                     `);
                     grpCilosari.forEach(s => this.slides.push(this.generateSlideIndividu(s, attFiltered)));
 
-                    this.currentSlideIndex = 0;
-                    this.renderSlide();
+                    this.currentSlideIndex = 0; this.renderSlide();
                 }
             },
 
@@ -1363,9 +1073,7 @@
 
                 return `
                     <div class="bg-white rounded-2xl flex flex-col items-center p-4">
-                        <div class="w-24 h-24 mb-4">
-                           ${this.generateAvatar(student.Nama).replace('w-10 h-10 md:w-12 md:h-12 text-sm', 'w-full h-full text-4xl')}
-                        </div>
+                        <div class="w-24 h-24 mb-4">${this.generateAvatar(student.Nama).replace('w-10 h-10 md:w-12 md:h-12 text-sm', 'w-full h-full text-4xl')}</div>
                         <h3 class="font-bold text-2xl text-gray-800 mb-1">${student.Nama}</h3>
                         <p class="text-sm text-gray-500 mb-6 font-semibold">Total Pertemuan: ${total}</p>
                         
@@ -1391,16 +1099,13 @@
                 if(this.slides.length === 0) return;
                 const container = document.getElementById('slide-content');
                 container.innerHTML = this.slides[this.currentSlideIndex];
-                container.classList.remove('fade-in');
-                void container.offsetWidth; 
-                container.classList.add('fade-in');
+                container.classList.remove('fade-in'); void container.offsetWidth; container.classList.add('fade-in');
                 document.getElementById('slide-counter').innerText = `${this.currentSlideIndex + 1} / ${this.slides.length}`;
             },
             nextSlide: function() { this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length; this.renderSlide(); },
             prevSlide: function() { this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length; this.renderSlide(); }
         };
 
-        // Initialize App
         document.addEventListener("DOMContentLoaded", () => { app.init(); });
     </script>
 </body>
