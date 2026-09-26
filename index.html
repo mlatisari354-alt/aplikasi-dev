@@ -110,7 +110,7 @@
                     </div>
                 </div>
 
-                <!-- VIEW 2: SCANNER (Diperbarui untuk Mode Continuous) -->
+                <!-- VIEW 2: SCANNER (Continuous Mode) -->
                 <div id="view-scanner" class="fade-in max-w-lg mx-auto hidden">
                     <div class="bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
                         <h3 class="font-bold text-xl mb-1 text-gray-800">Scan Barcode/QR</h3>
@@ -134,7 +134,7 @@
                 <div id="view-manual" class="fade-in max-w-5xl mx-auto hidden">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border">
                         <div class="flex flex-col"><h3 class="font-bold text-xl text-gray-800">Absensi Manual</h3><p class="text-xs text-gray-500">Pilih status santri untuk hari ini.</p></div>
-                        <input type="date" id="input-date" class="p-2.5 border rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-gray-50 w-full md:w-auto">
+                        <input type="date" id="input-date" onchange="app.renderManualList()" class="p-2.5 border rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-gray-50 w-full md:w-auto">
                     </div>
                     <div class="bg-gray-100 p-1.5 rounded-xl flex gap-1 mb-6 shadow-inner max-w-md mx-auto md:mx-0 border">
                         <button id="btn-tab-mlatisari" onclick="app.setManualTab('Mlatisari')" class="flex-1 py-2 text-sm font-semibold rounded-lg shadow-sm bg-white text-brand-800 transition">Mlatisari</button>
@@ -264,7 +264,7 @@
         const IS_PREVIEW = true; // default
         
         // PENTING: ISI URL DI BAWAH INI DAN PASTIKAN TANDA KUTIP (" ") TIDAK HILANG!
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbw6HpW4nzzoxslC0Ryl6PShM2q6gHtxGUcJZhSyC-ht3FpY1HXGwnyxiSN9uGhDKUEYmQ/exec"; 
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzrRbRDoTkfz-4ByMpDJ8o2F-h9KdByrNc6di-AwRoAvkvSXzn0ytyY7vkhwg7Az2YesA/exec"; 
 
         const app = {
             students: [], attendance: [], jadwal: [],
@@ -272,9 +272,8 @@
             slides: [], currentSlideIndex: 0, charts: { bar: null, doughnut: null },
             sidebarMinimized: false, jadwalFilter: 'Mlatisari', rekapViewMode: 'ringkasan', presentasiMode: 'kelas',
             
-            // Variabel untuk fitur Continuous Scan
-            lastScannedCode: null,
-            lastScannedTime: 0,
+            // Variabel Scanner Continuous
+            lastScannedCode: null, lastScannedTime: 0,
 
             apiCall: async function(actionData) {
                 if(!GAS_URL.startsWith("http") || GAS_URL.includes("ISI_URL")) {
@@ -292,20 +291,14 @@
                 if(!GAS_URL.includes("ISI_URL")) await this.syncData();
             },
 
-            // --- FUNGSI BARU: BEEP SOUND ---
             playBeep: function() {
                 try {
                     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc = ctx.createOscillator();
-                    osc.connect(ctx.destination);
-                    osc.type = 'sine';
-                    osc.frequency.value = 800; // Frekuensi Beep
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.1); // Durasi 0.1 detik
+                    const osc = ctx.createOscillator(); osc.connect(ctx.destination);
+                    osc.type = 'sine'; osc.frequency.value = 800; osc.start(); osc.stop(ctx.currentTime + 0.1);
                 } catch(e) {}
             },
 
-            // --- DIPERBARUI: INIT SCANNER CONTINUOUS ---
             initScanner: function() {
                 if(this.scanner) return;
                 document.getElementById('reader').innerHTML = ''; 
@@ -314,35 +307,24 @@
                 setTimeout(() => {
                     this.scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
                     this.scanner.render((decodedText, decodedResult) => {
-                        
                         const now = Date.now();
-                        // CEGAH DOUBLE SCAN: Abaikan jika QR yang sama discan dalam waktu kurang dari 3 detik (3000ms)
-                        if(this.lastScannedCode === decodedText && (now - this.lastScannedTime) < 3000) return;
+                        if(this.lastScannedCode === decodedText && (now - this.lastScannedTime) < 3000) return; // Anti-Double Scan (3 detik)
                         
-                        this.lastScannedCode = decodedText;
-                        this.lastScannedTime = now;
-
-                        const student = this.students.find(s => s.QR_Code === decodedText || s.ID_Siswa === decodedText);
+                        this.lastScannedCode = decodedText; this.lastScannedTime = now;
+                        // Pencocokan ID dengan memastikan tipe datanya sama (string)
+                        const student = this.students.find(s => s.QR_Code.toString() === decodedText.toString() || s.ID_Siswa.toString() === decodedText.toString());
+                        
                         if(student) {
-                            // 1. Bunyikan Suara
-                            this.playBeep();
-                            
-                            // 2. Tampilkan Toast (Tidak memblokir layar)
-                            this.toast('success', `${student.Nama} Hadir!`);
-                            
-                            // 3. Update UI Riwayat Scan
+                            this.playBeep(); this.toast('success', `${student.Nama} Hadir!`);
                             const list = document.getElementById('recent-scans-list');
                             if(list.innerHTML.includes('Menunggu scan')) list.innerHTML = '';
-                            const li = document.createElement('li');
-                            li.className = "text-sm p-2.5 bg-green-100 text-green-800 rounded-lg font-bold flex justify-between items-center fade-in border border-green-200";
-                            li.innerHTML = `<span class="truncate max-w-[70%]">${student.Nama}</span> <span class="text-[10px] bg-green-600 text-white px-2 py-1 rounded shadow-sm">Berhasil</span>`;
-                            list.prepend(li); 
-                            
-                            // 4. Simpan ke Database
+                            list.prepend(Object.assign(document.createElement('li'), {
+                                className: "text-sm p-2.5 bg-green-100 text-green-800 rounded-lg font-bold flex justify-between items-center fade-in border border-green-200",
+                                innerHTML: `<span class="truncate max-w-[70%]">${student.Nama}</span> <span class="text-[10px] bg-green-600 text-white px-2 py-1 rounded shadow-sm">Berhasil</span>`
+                            }));
                             this.saveSingleAbsensi(student, 'Hadir', '');
                         } else { 
-                            this.playBeep();
-                            this.toast('error', 'QR Code tidak terdaftar!'); 
+                            this.playBeep(); this.toast('error', 'QR Code tidak terdaftar!'); 
                         }
                     }, (error) => { });
                 }, 600);
@@ -354,7 +336,6 @@
                 this.sidebarMinimized = !this.sidebarMinimized;
                 const sidebar = document.getElementById('sidebar'); const texts = document.querySelectorAll('.sidebar-text');
                 const icon = document.getElementById('sidebar-icon'); const brand = document.getElementById('sidebar-brand');
-
                 if(this.sidebarMinimized) { sidebar.classList.replace('md:w-64', 'md:w-20'); texts.forEach(t => t.classList.add('md:hidden')); icon.classList.replace('fa-chevron-left', 'fa-chevron-right'); brand.classList.add('md:hidden');
                 } else { sidebar.classList.replace('md:w-20', 'md:w-64'); texts.forEach(t => t.classList.remove('md:hidden')); icon.classList.replace('fa-chevron-right', 'fa-chevron-left'); brand.classList.remove('md:hidden'); }
             },
@@ -433,6 +414,7 @@
                         this.students = json.data.siswa || []; this.attendance = json.data.absensi || []; this.jadwal = json.data.jadwal || [];
                         Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Data sinkron', timer: 1500, showConfirmButton: false });
                         if(this.currentView === 'settings') { this.renderStudentTable(); this.renderJadwal(); this.renderRekapTables(); }
+                        if(this.currentView === 'manual') this.renderManualList();
                     } else { Swal.fire('Error', json.message, 'error'); }
                 } catch(e) { Swal.fire('Error', 'Gagal koneksi server.', 'error'); }
             },
@@ -452,17 +434,22 @@
                 });
             },
 
+            // --- PERBAIKAN 1: GENERATE ID DAN QR YANG SAMA PERSIS ---
             addStudent: async function() {
                 const nama = document.getElementById('new-student-name').value; const kelompok = document.getElementById('new-student-group').value;
                 if(!nama) return this.toast('warning', 'Nama wajib diisi');
+                
+                const uniqueId = 'LPQ-' + Date.now(); // Buat ID tunggal yang seragam
+                
                 Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
-                try { const json = await this.apiCall({ action: 'add_siswa', data: { ID_Siswa: 'LPQ-'+Date.now(), Nama: nama, Kelompok: kelompok, QR_Code: 'LPQ-'+Date.now() } });
+                try { 
+                    const json = await this.apiCall({ action: 'add_siswa', data: { ID_Siswa: uniqueId, Nama: nama, Kelompok: kelompok, QR_Code: uniqueId } });
                     if(json.status === 'success') { document.getElementById('new-student-name').value = ''; await this.syncData(); } else { Swal.fire('Error', json.message, 'error'); }
-                } catch(e) { Swal.fire('Error', 'Gagal', 'error'); }
+                } catch(e) { Swal.fire('Error', 'Gagal menambah siswa', 'error'); }
             },
 
             editStudent: async function(id) {
-                const student = this.students.find(s => s.ID_Siswa === id); if(!student) return;
+                const student = this.students.find(s => s.ID_Siswa.toString() === id.toString()); if(!student) return;
                 const { value: formValues } = await Swal.fire({
                     title: 'Edit Data', html: `<input id="s-nama" class="swal2-input" value="${student.Nama}"><select id="s-kel" class="swal2-select"><option value="Mlatisari" ${student.Kelompok==='Mlatisari'?'selected':''}>Mlatisari</option><option value="Cilosari" ${student.Kelompok==='Cilosari'?'selected':''}>Cilosari</option></select>`,
                     preConfirm: () => { return { nama: document.getElementById('s-nama').value, kelompok: document.getElementById('s-kel').value } }
@@ -485,47 +472,80 @@
             closeQRModal: function() { document.getElementById('qr-modal').classList.add('hidden'); },
             downloadQR: function() { const canvas = document.querySelector('#qrcode-container canvas'); if(canvas) { const a = document.createElement('a'); a.href = canvas.toDataURL("image/png"); a.download = `QR_${document.getElementById('qr-modal-name').innerText}.png`; a.click(); } },
 
+            // --- PERBAIKAN 2: TAMPILAN ABU-ABU KARTU DI MENU MANUAL ---
             renderManualList: function() {
                 const container = document.getElementById('manual-student-list'); if(!container) return; container.innerHTML = '';
                 const filtered = this.students.filter(s => s.Kelompok === this.manualFilter);
-                if(filtered.length === 0) { container.innerHTML = '<div class="col-span-2 text-center py-10 text-sm">Kosong.</div>'; return; }
+                if(filtered.length === 0) { container.innerHTML = '<div class="col-span-2 text-center py-10 text-sm">Belum ada siswa di kelompok ini.</div>'; return; }
+
+                const todayDate = document.getElementById('input-date').value;
 
                 filtered.forEach(s => {
-                    if(!this.tempAbsensi[s.ID_Siswa]) this.tempAbsensi[s.ID_Siswa] = { status: null, keterangan: '' };
-                    let st = this.tempAbsensi[s.ID_Siswa].status; let ket = this.tempAbsensi[s.ID_Siswa].keterangan;
-                    let bgCard = "bg-white"; let av = "#1abc9c"; 
-                    if(st === 'Hadir') { bgCard = "bg-green-50 border-green-300"; av="#16a34a"; } else if(st === 'Izin') { bgCard = "bg-yellow-50 border-yellow-300"; av="#eab308";} else if(st === 'Alfa') { bgCard = "bg-red-50 border-red-300"; av="#ef4444";}
-                    
-                    container.innerHTML += `
-                        <div class="p-4 rounded-2xl border flex flex-col gap-4 ${bgCard}">
-                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background-color: ${av}">${s.Nama[0]}</div>
-                                <div><h4 class="font-bold text-sm">${s.Nama}</h4><p class="text-[10px] text-gray-500">${st ? 'Status: '+st : 'Pilih status'}</p></div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="app.setManualStatus('${s.ID_Siswa}', 'Hadir')" class="flex-1 py-2 rounded-lg text-xs font-bold border ${st==='Hadir'?'bg-green-500 text-white':'bg-white text-green-600'}">Hadir</button>
-                                <button onclick="app.setManualStatus('${s.ID_Siswa}', 'Izin')" class="flex-1 py-2 rounded-lg text-xs font-bold border ${st==='Izin'?'bg-yellow-500 text-white':'bg-white text-yellow-600'}">Izin</button>
-                                <button onclick="app.setManualStatus('${s.ID_Siswa}', 'Alfa')" class="flex-1 py-2 rounded-lg text-xs font-bold border ${st==='Alfa'?'bg-red-500 text-white':'bg-white text-red-600'}">Alfa</button>
-                            </div>
-                            <div class="${st === 'Izin' ? 'block' : 'hidden'}"><input type="text" placeholder="Alasan izin..." value="${ket}" onchange="app.tempAbsensi['${s.ID_Siswa}'].keterangan = this.value" class="w-full text-xs p-2 border rounded"></div>
-                        </div>`;
+                    // CEK APAKAH SUDAH ABSEN HARI INI DI DATABASE SERVER
+                    const isAlreadyAbsen = this.attendance.find(a => a.Tanggal === todayDate && a.ID_Siswa.toString() === s.ID_Siswa.toString());
+
+                    if (isAlreadyAbsen) {
+                        // JIKA SUDAH ABSEN -> TAMPILAN ABU-ABU DISABLED
+                        container.innerHTML += `
+                            <div class="p-4 rounded-2xl border flex flex-col gap-4 bg-gray-100 border-gray-200 opacity-80 cursor-not-allowed">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold bg-gray-400 shadow-inner">${s.Nama[0]}</div>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-gray-500 line-through">${s.Nama}</h4>
+                                        <p class="text-[10px] text-brand-700 font-bold bg-brand-100 px-2 py-0.5 rounded shadow-sm inline-block mt-1">✓ Sudah absen (${isAlreadyAbsen.Status})</p>
+                                    </div>
+                                </div>
+                                <div class="w-full text-center py-2 bg-gray-200/50 border border-gray-300/50 rounded-lg text-[11px] font-bold text-gray-500">
+                                    <i class="fa-solid fa-lock mr-1"></i> Data sudah masuk ke Server
+                                </div>
+                            </div>`;
+                    } else {
+                        // JIKA BELUM ABSEN -> TAMPILAN NORMAL (BISA DIKLIK)
+                        if(!this.tempAbsensi[s.ID_Siswa]) this.tempAbsensi[s.ID_Siswa] = { status: null, keterangan: '' };
+                        let st = this.tempAbsensi[s.ID_Siswa].status; let ket = this.tempAbsensi[s.ID_Siswa].keterangan;
+                        let bgCard = "bg-white"; let av = "#1abc9c"; 
+                        if(st === 'Hadir') { bgCard = "bg-green-50 border-green-300 shadow-md"; av="#16a34a"; } else if(st === 'Izin') { bgCard = "bg-yellow-50 border-yellow-300 shadow-md"; av="#eab308";} else if(st === 'Alfa') { bgCard = "bg-red-50 border-red-300 shadow-md"; av="#ef4444";}
+                        
+                        container.innerHTML += `
+                            <div class="p-4 rounded-2xl border flex flex-col gap-4 ${bgCard} transition-all">
+                                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background-color: ${av}">${s.Nama[0]}</div>
+                                    <div><h4 class="font-bold text-sm text-gray-800">${s.Nama}</h4><p class="text-[10px] text-gray-500 font-medium">${st ? 'Dipilih: '+st : 'Belum diabsen'}</p></div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="app.setManualStatus('${s.ID_Siswa}', 'Hadir')" class="flex-1 py-2 rounded-lg text-xs font-bold border ${st==='Hadir'?'bg-green-500 text-white shadow-inner':'bg-white text-green-600 hover:bg-green-50'} transition">Hadir</button>
+                                    <button onclick="app.setManualStatus('${s.ID_Siswa}', 'Izin')" class="flex-1 py-2 rounded-lg text-xs font-bold border ${st==='Izin'?'bg-yellow-500 text-white shadow-inner':'bg-white text-yellow-600 hover:bg-yellow-50'} transition">Izin</button>
+                                    <button onclick="app.setManualStatus('${s.ID_Siswa}', 'Alfa')" class="flex-1 py-2 rounded-lg text-xs font-bold border ${st==='Alfa'?'bg-red-500 text-white shadow-inner':'bg-white text-red-600 hover:bg-red-50'} transition">Alfa</button>
+                                </div>
+                                <div class="${st === 'Izin' ? 'block fade-in' : 'hidden'}"><input type="text" placeholder="Alasan izin (Misal: Sakit)..." value="${ket}" onchange="app.tempAbsensi['${s.ID_Siswa}'].keterangan = this.value" class="w-full text-xs p-2.5 border border-yellow-300 rounded-lg outline-none bg-yellow-50"></div>
+                            </div>`;
+                    }
                 });
             },
+
             setManualStatus: function(id, status) { this.tempAbsensi[id].status = status; if(status !== 'Izin') this.tempAbsensi[id].keterangan = '-'; this.renderManualList(); },
 
             saveSingleAbsensi: async function(student, status, ket) {
                 const today = document.getElementById('input-date') ? document.getElementById('input-date').value : new Date().toISOString().split('T')[0];
-                try { await this.apiCall({ action: 'save_absensi', data: [{ Tanggal: today, ID_Siswa: student.ID_Siswa, Nama: student.Nama, Kelompok: student.Kelompok, Status: status, Keterangan: ket }] }); } catch(e) {}
+                try { await this.apiCall({ action: 'save_absensi', data: [{ Tanggal: today, ID_Siswa: student.ID_Siswa, Nama: student.Nama, Kelompok: student.Kelompok, Status: status, Keterangan: ket }] }); await this.syncData(); } catch(e) {}
             },
 
             saveManualAbsensi: async function() {
                 const date = document.getElementById('input-date').value; if(!date) return this.toast('error', 'Tanggal kosong!');
                 const toSave = []; const cur = this.students.filter(s => s.Kelompok === this.manualFilter);
+                
                 for (let i = 0; i < cur.length; i++) {
+                    // SKIP/LEWATI SISWA YANG SUDAH ABSEN
+                    const isAlreadyAbsen = this.attendance.find(a => a.Tanggal === date && a.ID_Siswa.toString() === cur[i].ID_Siswa.toString());
+                    if(isAlreadyAbsen) continue; 
+
                     let st = this.tempAbsensi[cur[i].ID_Siswa]?.status || 'Alfa'; let ket = this.tempAbsensi[cur[i].ID_Siswa]?.keterangan || 'Otomatis Alfa';
                     if (st === 'Izin' && (!ket || ket === '-')) return this.toast('warning', `Alasan izin ${cur[i].Nama} wajib diisi!`);
                     toSave.push({ Tanggal: date, ID_Siswa: cur[i].ID_Siswa, Nama: cur[i].Nama, Kelompok: cur[i].Kelompok, Status: st, Keterangan: ket });
                 }
-                const confirm = await Swal.fire({ title: 'Simpan?', text: 'Siswa belum dipilih otomatis Alfa', icon: 'warning', showCancelButton: true });
+
+                if (toSave.length === 0) return Swal.fire('Info', 'Semua siswa di kelompok ini sudah selesai diabsen.', 'info');
+
+                const confirm = await Swal.fire({ title: 'Simpan?', text: 'Siswa yang belum Anda pilih akan di-Alfa-kan otomatis.', icon: 'warning', showCancelButton: true });
                 if (confirm.isConfirmed) { Swal.fire({ title: 'Menyimpan...', didOpen: () => { Swal.showLoading(); }}); await this.apiCall({ action: 'save_absensi', data: toSave }); this.tempAbsensi = {}; await this.syncData(); this.renderManualList(); }
             },
 
@@ -582,7 +602,7 @@
                 kelompoKList.forEach(kel => {
                     const stds = this.students.filter(s => s.Kelompok === kel); const aKel = att.filter(a => a.Kelompok === kel);
                     html += `<div class="mb-8 border border-blue-600 rounded-xl overflow-hidden mt-6"><div class="bg-blue-600 text-white p-3 font-bold">${kel.toUpperCase()}</div><div class="overflow-x-auto"><table class="w-full text-center text-xs whitespace-nowrap"><thead class="bg-gray-50 border-b"><tr><th class="p-2 border-r">Nama</th>${uDates.map(d => `<th class="p-2 border-r">${new Date(d).getDate()}/${new Date(d).getMonth()+1}</th>`).join('')}</tr></thead><tbody>`;
-                    stds.forEach(s => { html += `<tr><td class="p-2 text-left font-bold border-r">${s.Nama}</td>${uDates.map(d => { const r = aKel.find(a => a.Tanggal === d && a.ID_Siswa === s.ID_Siswa); const st = r ? r.Status : '-'; const bg = st==='Hadir'?'bg-green-400':(st==='Izin'?'bg-yellow-400':(st==='Alfa'?'bg-red-400':'bg-gray-50')); return `<td class="p-2 border text-white font-bold ${bg}">${st}</td>`; }).join('')}</tr>`; });
+                    stds.forEach(s => { html += `<tr><td class="p-2 text-left font-bold border-r">${s.Nama}</td>${uDates.map(d => { const r = aKel.find(a => a.Tanggal === d && a.ID_Siswa.toString() === s.ID_Siswa.toString()); const st = r ? r.Status : '-'; const bg = st==='Hadir'?'bg-green-400':(st==='Izin'?'bg-yellow-400':(st==='Alfa'?'bg-red-400':'bg-gray-50')); return `<td class="p-2 border text-white font-bold ${bg}">${st}</td>`; }).join('')}</tr>`; });
                     html += `</tbody></table></div></div>`;
                 }); return html;
             },
@@ -593,7 +613,7 @@
                     const stds = this.students.filter(s => s.Kelompok === kel); const aKel = att.filter(a => a.Kelompok === kel); const jdwl = this.jadwal.filter(j => j.Tanggal >= sDate && j.Tanggal <= eDate && j.Kelompok === kel && j.Status === 'Masuk');
                     const tot = [...new Set([...aKel.map(a=>a.Tanggal), ...jdwl.map(j=>j.Tanggal)])].length || 1;
                     html += `<div class="mb-8 border rounded-xl overflow-hidden mt-6"><div class="p-4 text-center"><h3 class="font-bold">Persentase ${kel.toUpperCase()}</h3><p class="text-xs">Pertemuan: ${tot}</p></div><div class="overflow-x-auto"><table class="w-full text-center text-xs whitespace-nowrap"><thead class="bg-gray-50 border-y"><tr><th class="p-2">Nama</th><th class="p-2 text-green-700">Hadir</th><th class="p-2 text-yellow-600">Izin</th><th class="p-2 text-red-600">Alfa</th></tr></thead><tbody>`;
-                    stds.forEach(s => { const sAtt = aKel.filter(a => a.ID_Siswa === s.ID_Siswa); const h = sAtt.filter(a=>a.Status==='Hadir').length; const i = sAtt.filter(a=>a.Status==='Izin').length; const a = sAtt.filter(a=>a.Status==='Alfa').length;
+                    stds.forEach(s => { const sAtt = aKel.filter(a => a.ID_Siswa.toString() === s.ID_Siswa.toString()); const h = sAtt.filter(a=>a.Status==='Hadir').length; const i = sAtt.filter(a=>a.Status==='Izin').length; const a = sAtt.filter(a=>a.Status==='Alfa').length;
                         html += `<tr class="border-b"><td class="p-2 text-left font-bold">${s.Nama}</td><td class="p-2 font-bold text-green-600">${Math.round((h/tot)*100)}%</td><td class="p-2 font-bold text-yellow-500">${Math.round((i/tot)*100)}%</td><td class="p-2 font-bold text-red-500">${Math.round((a/tot)*100)}%</td></tr>`;
                     }); html += `</tbody></table></div></div>`;
                 }); return html;
@@ -602,7 +622,7 @@
             exportToExcel: function() {
                 const att = this.getFilteredAttendance('rekap-start', 'rekap-end'); if(att.length === 0) return Swal.fire('Kosong', 'Tidak ada data', 'info');
                 const dates = [...new Set(att.map(a => a.Tanggal))].sort(); const ex = [];
-                this.students.forEach(s => { let r = { 'Nama': s.Nama, 'Kelompok': s.Kelompok }; dates.forEach(d => { const rec = att.find(a => a.ID_Siswa === s.ID_Siswa && a.Tanggal === d); r[d] = rec ? rec.Status : '-'; }); ex.push(r); });
+                this.students.forEach(s => { let r = { 'Nama': s.Nama, 'Kelompok': s.Kelompok }; dates.forEach(d => { const rec = att.find(a => a.ID_Siswa.toString() === s.ID_Siswa.toString() && a.Tanggal === d); r[d] = rec ? rec.Status : '-'; }); ex.push(r); });
                 const ws = XLSX.utils.json_to_sheet(ex); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Rekap"); XLSX.writeFile(wb, `Rekap_Absensi.xlsx`);
             },
             exportToPDF: function() {
