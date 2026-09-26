@@ -288,12 +288,16 @@
     <!-- MAIN APP LOGIC -->
     <script>
         // === CONFIGURATION ===
+        const IS_PREVIEW = false; // default mode cloud
         
-        // PENTING: Ganti URL di dalam TANDA KUTIP dengan URL Web App Anda. 
-        // JANGAN MENGHAPUS TANDA KUTIP (" ") NYA!
+        // =========================================================================
+        // PENTING: Ganti tulisan di dalam TANDA KUTIP (" ") dengan URL Web App Anda. 
+        // CONTOH BENAR: const GAS_URL = "https://script.google.com/macros/...";
+        // CONTOH SALAH: const GAS_URL = https://script.google.com/macros/...; (Akan Bikin Error!)
+        
         const GAS_URL = "https://script.google.com/macros/s/AKfycbw6HpW4nzzoxslC0Ryl6PShM2q6gHtxGUcJZhSyC-ht3FpY1HXGwnyxiSN9uGhDKUEYmQ/exec"; 
         
-        // =======================
+        // =========================================================================
 
         const app = {
             students: [], attendance: [], jadwal: [],
@@ -301,7 +305,6 @@
             slides: [], currentSlideIndex: 0, charts: { bar: null, doughnut: null },
             sidebarMinimized: false, jadwalFilter: 'Mlatisari', rekapViewMode: 'ringkasan', presentasiMode: 'kelas',
 
-            // HELPER FETCH API
             apiCall: async function(actionData) {
                 if(!GAS_URL || !GAS_URL.startsWith("http") || GAS_URL.includes("ISI_DENGAN")) {
                     Swal.fire({icon: 'error', title: 'URL GAS Belum Diisi', text: 'Silakan isi const GAS_URL dengan URL Web App Google Script Anda di dalam file HTML.'});
@@ -324,7 +327,7 @@
                 document.getElementById('pres-start').value = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
                 document.getElementById('pres-end').value = fmt(new Date(today.getFullYear(), today.getMonth() + 1, 0));
                 
-                if(GAS_URL.includes("ISI_DENGAN")) return; // Cegah error fetch jika URL masih default
+                if(GAS_URL.includes("ISI_DENGAN")) return; 
                 await this.syncData();
             },
 
@@ -355,7 +358,7 @@
 
             showDashboard: function() {
                 if(GAS_URL.includes("ISI_DENGAN")) {
-                    Swal.fire({icon: 'error', title: 'Aplikasi Belum Siap', text: 'Anda belum memasukkan URL Google Apps Script ke dalam baris kode (GAS_URL).'});
+                    Swal.fire({icon: 'error', title: 'Aplikasi Belum Siap', text: 'Anda belum memasukkan URL Google Apps Script ke dalam baris kode (GAS_URL). Periksa kembali tanda kutipnya!'});
                     return;
                 }
                 document.getElementById('view-landing').style.transform = 'translateY(-100%)';
@@ -484,7 +487,7 @@
             },
 
             syncData: async function() {
-                if(!GAS_URL.startsWith("http")) return; // Pencegahan jika URL kosong
+                if(!GAS_URL.startsWith("http")) return; 
                 Swal.fire({ title: 'Sinkronisasi...', text: 'Mengambil data dari server', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                 try {
                     const res = await fetch(`${GAS_URL}?action=get_all_data`);
