@@ -29,6 +29,9 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #reader { width: 100%; border-radius: 1rem; overflow: hidden; border: none !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         #reader video { border-radius: 1rem; object-fit: cover; }
+        
+        /* Checkbox Custom Styling for Detail Table */
+        .cb-custom { width: 18px; height: 18px; cursor: pointer; accent-color: #ef4444; }
     </style>
 </head>
 <body class="text-gray-800 antialiased h-screen flex flex-col overflow-hidden">
@@ -49,28 +52,26 @@
     </div>
 
     <!-- MAIN APP LAYOUT -->
-    <div id="main-layout" class="hidden flex-1 h-screen w-full relative">
+    <div id="main-layout" class="hidden flex-1 h-screen w-full relative flex-row">
         
         <!-- SIDEBAR (Desktop) -->
-        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full shadow-sm z-20 transition-all duration-300 relative">
-            <div class="p-6 flex items-center justify-between border-b border-gray-100">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-10 h-10 bg-brand-100 text-brand-700 rounded-xl flex items-center justify-center shrink-0"><i class="fa-solid fa-mosque text-lg"></i></div>
-                    <div id="sidebar-brand" class="whitespace-nowrap"><h2 class="font-bold text-gray-800 leading-tight">Baitussyukur</h2><p class="text-xs text-gray-500">Admin Dashboard</p></div>
-                </div>
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full shadow-sm z-30 transition-all duration-300 relative shrink-0">
+            <div class="p-6 flex items-center gap-3 border-b border-gray-100 overflow-hidden shrink-0">
+                <div class="w-10 h-10 bg-brand-100 text-brand-700 rounded-xl flex items-center justify-center shrink-0"><i class="fa-solid fa-mosque text-lg"></i></div>
+                <div id="sidebar-brand" class="whitespace-nowrap transition-opacity duration-300"><h2 class="font-bold text-gray-800 leading-tight">Baitussyukur</h2><p class="text-xs text-gray-500">Admin Dashboard</p></div>
             </div>
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <button onclick="app.navigate('dashboard')" data-target="dashboard" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-house w-5 text-center"></i> <span class="sidebar-text">Home</span></button>
-                <button onclick="app.navigate('scanner')" data-target="scanner" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-qrcode w-5 text-center"></i> <span class="sidebar-text">Scan Barcode</span></button>
-                <button onclick="app.navigate('manual')" data-target="manual" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-clipboard-user w-5 text-center"></i> <span class="sidebar-text">Absen Manual</span></button>
-                <button onclick="app.navigate('presentasi')" data-target="presentasi" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> <span class="sidebar-text">Presentasi</span></button>
-                <button onclick="app.navigate('settings')" data-target="settings" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-gear w-5 text-center"></i> <span class="sidebar-text">Pengaturan</span></button>
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto overflow-x-hidden">
+                <button onclick="app.navigate('dashboard')" data-target="dashboard" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-house w-5 text-center shrink-0"></i> <span class="sidebar-text whitespace-nowrap transition-opacity duration-300">Home</span></button>
+                <button onclick="app.navigate('scanner')" data-target="scanner" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-qrcode w-5 text-center shrink-0"></i> <span class="sidebar-text whitespace-nowrap transition-opacity duration-300">Scan Barcode</span></button>
+                <button onclick="app.navigate('manual')" data-target="manual" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-clipboard-user w-5 text-center shrink-0"></i> <span class="sidebar-text whitespace-nowrap transition-opacity duration-300">Absen Manual</span></button>
+                <button onclick="app.navigate('presentasi')" data-target="presentasi" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-chart-pie w-5 text-center shrink-0"></i> <span class="sidebar-text whitespace-nowrap transition-opacity duration-300">Presentasi</span></button>
+                <button onclick="app.navigate('settings')" data-target="settings" class="nav-btn w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-gray-400 hover:bg-gray-50 transition"><i class="fa-solid fa-gear w-5 text-center shrink-0"></i> <span class="sidebar-text whitespace-nowrap transition-opacity duration-300">Pengaturan</span></button>
             </nav>
-            <button onclick="app.toggleSidebar()" class="absolute -right-4 top-20 bg-white border w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-brand-600 shadow-md"><i id="sidebar-icon" class="fa-solid fa-chevron-left text-xs"></i></button>
+            <button onclick="app.toggleSidebar()" class="absolute -right-3 top-20 bg-white border border-gray-200 w-6 h-6 rounded-full flex items-center justify-center text-gray-500 hover:text-brand-600 shadow-md z-50"><i id="sidebar-icon" class="fa-solid fa-chevron-left text-[10px]"></i></button>
         </aside>
 
         <!-- CONTENT AREA -->
-        <main class="flex-1 h-full flex flex-col bg-[#f8fafc] w-full overflow-hidden relative">
+        <main class="flex-1 h-full flex flex-col bg-[#f8fafc] w-full min-w-0 overflow-hidden relative">
             <header class="bg-[#1a472a] text-white p-4 md:px-8 md:py-5 flex justify-between items-center shadow-md z-10 shrink-0 relative overflow-hidden">
                 <div><h2 class="font-bold text-lg md:text-xl tracking-wide flex items-center gap-2"><i class="fa-solid fa-mosque md:hidden"></i> LPQ Baitussyukur</h2></div>
                 <button onclick="app.syncData()" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 border border-white/20">
@@ -79,7 +80,7 @@
             </header>
 
             <!-- SCROLLABLE CONTENT -->
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 w-full relative">
+            <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-24 md:pb-8 w-full relative">
                 
                 <!-- VIEW 1: DASHBOARD -->
                 <div id="view-dashboard" class="fade-in max-w-5xl mx-auto hidden">
@@ -147,7 +148,7 @@
                 </div>
 
                 <!-- VIEW 4: PRESENTASI -->
-                <div id="view-presentasi" class="fade-in max-w-5xl mx-auto hidden flex-col">
+                <div id="view-presentasi" class="fade-in max-w-6xl mx-auto hidden flex-col w-full">
                     <div class="bg-white p-4 rounded-2xl shadow-sm border mb-6 flex flex-wrap gap-4 items-center justify-between">
                         <div class="flex gap-2">
                             <button onclick="app.showPresentationMode('kelas')" class="bg-brand-700 text-white px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-brand-800"><i class="fa-solid fa-users"></i> Per Kelas</button>
@@ -159,12 +160,21 @@
                         </div>
                     </div>
 
-                    <div id="presentation-carousel" class="flex-1 flex flex-col justify-center relative min-h-[60vh] bg-gray-100/50 rounded-3xl border p-4 md:p-10 hidden">
-                        <button onclick="app.prevSlide()" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-600 hover:scale-110 z-10"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button onclick="app.nextSlide()" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-600 hover:scale-110 z-10"><i class="fa-solid fa-chevron-right"></i></button>
-                        <div id="slide-content" class="w-full text-center transition-all duration-300"></div>
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 px-4 py-1.5 rounded-full text-xs font-bold text-gray-500 border border-white" id="slide-counter">1 / 1</div>
+                    <!-- Layout Baru Presentasi -->
+                    <div id="presentation-carousel" class="flex-1 flex flex-row items-center justify-center relative min-h-[60vh] bg-transparent p-0 md:p-4 hidden w-full overflow-hidden">
+                        
+                        <!-- Navigasi Kiri -->
+                        <button onclick="app.prevSlide()" class="z-20 w-12 h-12 md:w-14 md:h-14 bg-[#1abc9c] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#16a34a] hover:scale-105 transition shrink-0 absolute left-0 md:relative md:left-auto md:mr-8"><i class="fa-solid fa-chevron-left"></i></button>
+                        
+                        <!-- Konten Slide -->
+                        <div id="slide-content" class="w-full text-center transition-all duration-300 px-6 md:px-0 flex justify-center">
+                            <!-- Di-render dari JS -->
+                        </div>
+
+                        <!-- Navigasi Kanan -->
+                        <button onclick="app.nextSlide()" class="z-20 w-12 h-12 md:w-14 md:h-14 bg-[#1abc9c] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#16a34a] hover:scale-105 transition shrink-0 absolute right-0 md:relative md:right-auto md:ml-8"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
+
                     <div id="presentation-compare" class="bg-white p-6 rounded-3xl shadow-sm border flex-col items-center justify-center hidden min-h-[60vh]">
                         <h3 class="font-bold text-xl md:text-2xl text-gray-800 mb-2">Perbandingan Kehadiran</h3>
                         <div class="w-full max-w-sm relative"><canvas id="doughnutChart"></canvas></div>
@@ -172,9 +182,9 @@
                 </div>
 
                 <!-- VIEW 5: SETTINGS -->
-                <div id="view-settings" class="fade-in max-w-6xl mx-auto hidden flex-col">
+                <div id="view-settings" class="fade-in max-w-6xl mx-auto hidden flex-col w-full">
                     <h2 class="font-bold text-2xl mb-6 text-gray-800 px-2">Pengaturan & Laporan</h2>
-                    <div class="bg-white p-2 rounded-xl shadow-sm border mb-6 flex overflow-x-auto hide-scrollbar gap-2">
+                    <div class="bg-white p-2 rounded-xl shadow-sm border mb-6 flex overflow-x-auto hide-scrollbar gap-2 shrink-0">
                         <button id="tab-data" onclick="app.setSettingTab('data')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg bg-brand-100 text-brand-800 transition whitespace-nowrap">Data Siswa</button>
                         <button id="tab-jadwal" onclick="app.setSettingTab('jadwal')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 hover:bg-gray-50 transition whitespace-nowrap">Jadwal Pengajian</button>
                         <button id="tab-rekap" onclick="app.setSettingTab('rekap')" class="px-5 py-2.5 text-xs md:text-sm font-bold rounded-lg text-gray-500 hover:bg-gray-50 transition whitespace-nowrap">Rekap Laporan</button>
@@ -215,7 +225,7 @@
                     </div>
 
                     <!-- Sub 3: Rekap Laporan -->
-                    <div id="setting-rekap" class="hidden flex-col">
+                    <div id="setting-rekap" class="hidden flex-col w-full">
                         <div class="bg-white rounded-2xl shadow-sm border mb-4 overflow-hidden">
                             <div class="p-4 border-b flex flex-col md:flex-row justify-between gap-4 bg-gray-50">
                                 <div class="flex items-center gap-2 text-xs md:text-sm font-bold text-gray-600">
@@ -231,6 +241,7 @@
                                 <button id="tab-rekap-ringkasan" onclick="app.setRekapView('ringkasan')" class="px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-800 whitespace-nowrap">Grafik Ringkasan</button>
                                 <button id="tab-rekap-detail" onclick="app.setRekapView('detail')" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 whitespace-nowrap">Laporan Bulanan</button>
                                 <button id="tab-rekap-grid" onclick="app.setRekapView('grid')" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 whitespace-nowrap">Tabel Persentase</button>
+                                <button id="tab-rekap-detail-tabel" onclick="app.setRekapView('detail-tabel')" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 whitespace-nowrap">Detail Absensi (Edit/Hapus)</button>
                             </div>
                         </div>
                         <div id="rekap-content-area" class="w-full"></div>
@@ -249,7 +260,7 @@
     </div>
 
     <!-- Modal QR -->
-    <div id="qr-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 fade-in">
+    <div id="qr-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4 fade-in">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm text-center shadow-2xl relative">
             <button onclick="app.closeQRModal()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 transition"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="qr-modal-name" class="font-bold text-xl text-gray-800 mb-1 mt-2">Nama</h3>
@@ -311,7 +322,6 @@
                         if(this.lastScannedCode === decodedText && (now - this.lastScannedTime) < 3000) return; // Anti-Double Scan (3 detik)
                         
                         this.lastScannedCode = decodedText; this.lastScannedTime = now;
-                        // Pencocokan ID dengan memastikan tipe datanya sama (string)
                         const student = this.students.find(s => s.QR_Code.toString() === decodedText.toString() || s.ID_Siswa.toString() === decodedText.toString());
                         
                         if(student) {
@@ -332,12 +342,25 @@
 
             formatIdDate: function(dateStr) { return dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ''; },
 
+            // --- PERBAIKAN: SIDEBAR TOGGLE ---
             toggleSidebar: function() {
                 this.sidebarMinimized = !this.sidebarMinimized;
-                const sidebar = document.getElementById('sidebar'); const texts = document.querySelectorAll('.sidebar-text');
-                const icon = document.getElementById('sidebar-icon'); const brand = document.getElementById('sidebar-brand');
-                if(this.sidebarMinimized) { sidebar.classList.replace('md:w-64', 'md:w-20'); texts.forEach(t => t.classList.add('md:hidden')); icon.classList.replace('fa-chevron-left', 'fa-chevron-right'); brand.classList.add('md:hidden');
-                } else { sidebar.classList.replace('md:w-20', 'md:w-64'); texts.forEach(t => t.classList.remove('md:hidden')); icon.classList.replace('fa-chevron-right', 'fa-chevron-left'); brand.classList.remove('md:hidden'); }
+                const sidebar = document.getElementById('sidebar'); 
+                const texts = document.querySelectorAll('.sidebar-text');
+                const icon = document.getElementById('sidebar-icon'); 
+                const brand = document.getElementById('sidebar-brand');
+                
+                if(this.sidebarMinimized) { 
+                    sidebar.classList.replace('md:w-64', 'md:w-20'); 
+                    texts.forEach(t => { t.classList.remove('opacity-100'); t.classList.add('opacity-0', 'w-0'); }); 
+                    icon.classList.replace('fa-chevron-left', 'fa-chevron-right'); 
+                    brand.classList.remove('opacity-100'); brand.classList.add('opacity-0', 'w-0');
+                } else { 
+                    sidebar.classList.replace('md:w-20', 'md:w-64'); 
+                    texts.forEach(t => { t.classList.remove('opacity-0', 'w-0'); t.classList.add('opacity-100'); }); 
+                    icon.classList.replace('fa-chevron-right', 'fa-chevron-left'); 
+                    brand.classList.remove('opacity-0', 'w-0'); brand.classList.add('opacity-100');
+                }
             },
 
             showDashboard: function() {
@@ -386,7 +409,7 @@
 
             setRekapView: function(mode) {
                 this.rekapViewMode = mode;
-                ['ringkasan', 'detail', 'grid'].forEach(t => {
+                ['ringkasan', 'detail', 'grid', 'detail-tabel'].forEach(t => {
                     const btn = document.getElementById(`tab-rekap-${t}`);
                     if(t === mode) btn.className = "px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-800 transition whitespace-nowrap";
                     else btn.className = "px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-brand-600 transition whitespace-nowrap";
@@ -434,13 +457,10 @@
                 });
             },
 
-            // --- PERBAIKAN 1: GENERATE ID DAN QR YANG SAMA PERSIS ---
             addStudent: async function() {
                 const nama = document.getElementById('new-student-name').value; const kelompok = document.getElementById('new-student-group').value;
                 if(!nama) return this.toast('warning', 'Nama wajib diisi');
-                
-                const uniqueId = 'LPQ-' + Date.now(); // Buat ID tunggal yang seragam
-                
+                const uniqueId = 'LPQ-' + Date.now();
                 Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                 try { 
                     const json = await this.apiCall({ action: 'add_siswa', data: { ID_Siswa: uniqueId, Nama: nama, Kelompok: kelompok, QR_Code: uniqueId } });
@@ -472,7 +492,6 @@
             closeQRModal: function() { document.getElementById('qr-modal').classList.add('hidden'); },
             downloadQR: function() { const canvas = document.querySelector('#qrcode-container canvas'); if(canvas) { const a = document.createElement('a'); a.href = canvas.toDataURL("image/png"); a.download = `QR_${document.getElementById('qr-modal-name').innerText}.png`; a.click(); } },
 
-            // --- PERBAIKAN 2: TAMPILAN ABU-ABU KARTU DI MENU MANUAL ---
             renderManualList: function() {
                 const container = document.getElementById('manual-student-list'); if(!container) return; container.innerHTML = '';
                 const filtered = this.students.filter(s => s.Kelompok === this.manualFilter);
@@ -481,26 +500,17 @@
                 const todayDate = document.getElementById('input-date').value;
 
                 filtered.forEach(s => {
-                    // CEK APAKAH SUDAH ABSEN HARI INI DI DATABASE SERVER
                     const isAlreadyAbsen = this.attendance.find(a => a.Tanggal === todayDate && a.ID_Siswa.toString() === s.ID_Siswa.toString());
-
                     if (isAlreadyAbsen) {
-                        // JIKA SUDAH ABSEN -> TAMPILAN ABU-ABU DISABLED
                         container.innerHTML += `
                             <div class="p-4 rounded-2xl border flex flex-col gap-4 bg-gray-100 border-gray-200 opacity-80 cursor-not-allowed">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold bg-gray-400 shadow-inner">${s.Nama[0]}</div>
-                                    <div>
-                                        <h4 class="font-bold text-sm text-gray-500 line-through">${s.Nama}</h4>
-                                        <p class="text-[10px] text-brand-700 font-bold bg-brand-100 px-2 py-0.5 rounded shadow-sm inline-block mt-1">✓ Sudah absen (${isAlreadyAbsen.Status})</p>
-                                    </div>
+                                    <div><h4 class="font-bold text-sm text-gray-500 line-through">${s.Nama}</h4><p class="text-[10px] text-brand-700 font-bold bg-brand-100 px-2 py-0.5 rounded shadow-sm inline-block mt-1">✓ Sudah absen (${isAlreadyAbsen.Status})</p></div>
                                 </div>
-                                <div class="w-full text-center py-2 bg-gray-200/50 border border-gray-300/50 rounded-lg text-[11px] font-bold text-gray-500">
-                                    <i class="fa-solid fa-lock mr-1"></i> Data sudah masuk ke Server
-                                </div>
+                                <div class="w-full text-center py-2 bg-gray-200/50 border border-gray-300/50 rounded-lg text-[11px] font-bold text-gray-500"><i class="fa-solid fa-lock mr-1"></i> Data sudah masuk ke Server</div>
                             </div>`;
                     } else {
-                        // JIKA BELUM ABSEN -> TAMPILAN NORMAL (BISA DIKLIK)
                         if(!this.tempAbsensi[s.ID_Siswa]) this.tempAbsensi[s.ID_Siswa] = { status: null, keterangan: '' };
                         let st = this.tempAbsensi[s.ID_Siswa].status; let ket = this.tempAbsensi[s.ID_Siswa].keterangan;
                         let bgCard = "bg-white"; let av = "#1abc9c"; 
@@ -532,19 +542,14 @@
             saveManualAbsensi: async function() {
                 const date = document.getElementById('input-date').value; if(!date) return this.toast('error', 'Tanggal kosong!');
                 const toSave = []; const cur = this.students.filter(s => s.Kelompok === this.manualFilter);
-                
                 for (let i = 0; i < cur.length; i++) {
-                    // SKIP/LEWATI SISWA YANG SUDAH ABSEN
                     const isAlreadyAbsen = this.attendance.find(a => a.Tanggal === date && a.ID_Siswa.toString() === cur[i].ID_Siswa.toString());
                     if(isAlreadyAbsen) continue; 
-
                     let st = this.tempAbsensi[cur[i].ID_Siswa]?.status || 'Alfa'; let ket = this.tempAbsensi[cur[i].ID_Siswa]?.keterangan || 'Otomatis Alfa';
                     if (st === 'Izin' && (!ket || ket === '-')) return this.toast('warning', `Alasan izin ${cur[i].Nama} wajib diisi!`);
                     toSave.push({ Tanggal: date, ID_Siswa: cur[i].ID_Siswa, Nama: cur[i].Nama, Kelompok: cur[i].Kelompok, Status: st, Keterangan: ket });
                 }
-
                 if (toSave.length === 0) return Swal.fire('Info', 'Semua siswa di kelompok ini sudah selesai diabsen.', 'info');
-
                 const confirm = await Swal.fire({ title: 'Simpan?', text: 'Siswa yang belum Anda pilih akan di-Alfa-kan otomatis.', icon: 'warning', showCancelButton: true });
                 if (confirm.isConfirmed) { Swal.fire({ title: 'Menyimpan...', didOpen: () => { Swal.showLoading(); }}); await this.apiCall({ action: 'save_absensi', data: toSave }); this.tempAbsensi = {}; await this.syncData(); this.renderManualList(); }
             },
@@ -581,7 +586,127 @@
             renderRekapTables: function() {
                 const s = document.getElementById('rekap-start').value; const e = document.getElementById('rekap-end').value; if(!s || !e) return;
                 const c = document.getElementById('rekap-content-area'); if(!c) return;
-                if(this.rekapViewMode === 'ringkasan') c.innerHTML = this.buildRekapGrafik(s, e); else if(this.rekapViewMode === 'detail') c.innerHTML = this.buildRekapDetail(s, e); else if(this.rekapViewMode === 'grid') c.innerHTML = this.buildRekapGrid(s, e);
+                if(this.rekapViewMode === 'ringkasan') c.innerHTML = this.buildRekapGrafik(s, e); 
+                else if(this.rekapViewMode === 'detail') c.innerHTML = this.buildRekapDetail(s, e); 
+                else if(this.rekapViewMode === 'grid') c.innerHTML = this.buildRekapGrid(s, e);
+                else if(this.rekapViewMode === 'detail-tabel') c.innerHTML = this.buildRekapDetailTabel(s, e);
+            },
+
+            // --- TAB BARU: DETAIL ABSENSI ---
+            buildRekapDetailTabel: function(sDate, eDate) {
+                let att = this.getFilteredAttendance('rekap-start', 'rekap-end');
+                const filterKelEl = document.getElementById('filter-kelompok-detail');
+                const kel = filterKelEl ? filterKelEl.value : 'Semua';
+                
+                if(kel !== 'Semua') att = att.filter(a => a.Kelompok === kel);
+                att.sort((a,b) => new Date(b.Tanggal) - new Date(a.Tanggal)); // Urutkan tanggal terbaru
+
+                let html = `
+                <div class="bg-white p-4 rounded-xl border border-gray-200 mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-6">
+                    <div class="flex gap-2 items-center w-full md:w-auto">
+                        <span class="text-sm font-bold text-gray-600">Filter Kelompok:</span>
+                        <select id="filter-kelompok-detail" onchange="app.renderRekapTables()" class="p-2 border border-gray-300 rounded-lg text-sm font-bold outline-none bg-gray-50 flex-1 md:flex-none">
+                            <option value="Semua" ${kel==='Semua'?'selected':''}>Semua Kelompok</option>
+                            <option value="Mlatisari" ${kel==='Mlatisari'?'selected':''}>Mlatisari</option>
+                            <option value="Cilosari" ${kel==='Cilosari'?'selected':''}>Cilosari</option>
+                        </select>
+                    </div>
+                    <button onclick="app.deleteSelectedAbsensi()" class="w-full md:w-auto bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Terpilih
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto border border-gray-200 rounded-xl w-full">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-100 text-gray-600 border-b border-gray-200">
+                            <tr>
+                                <th class="p-3 text-center w-10"><input type="checkbox" id="check-all-absensi" onchange="app.toggleCheckAllAbsensi(this)" class="cb-custom"></th>
+                                <th class="p-3">No</th><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Kelompok</th>
+                                <th class="p-3">Status</th><th class="p-3">Keterangan</th><th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                `;
+
+                if(att.length === 0) html += `<tr><td colspan="8" class="text-center p-6 text-gray-400 font-medium">Tidak ada data absensi di rentang ini.</td></tr>`;
+
+                att.forEach((a, idx) => {
+                    let bgStat = a.Status==='Hadir'?'bg-green-100 text-green-700':(a.Status==='Izin'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700');
+                    html += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-3 text-center"><input type="checkbox" class="cb-custom check-absensi" data-tgl="${a.Tanggal}" data-id="${a.ID_Siswa}"></td>
+                        <td class="p-3 font-medium text-gray-500">${idx+1}</td>
+                        <td class="p-3 font-bold text-gray-700">${this.formatIdDate(a.Tanggal)}</td>
+                        <td class="p-3 font-bold text-gray-900">${a.Nama}</td>
+                        <td class="p-3 text-xs text-gray-500 font-bold">${a.Kelompok}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-[11px] font-bold ${bgStat}">${a.Status}</span></td>
+                        <td class="p-3 text-xs text-gray-500 max-w-[150px] truncate" title="${a.Keterangan}">${a.Keterangan}</td>
+                        <td class="p-3 text-center flex gap-1 justify-center">
+                            <button onclick="app.editAbsensi('${a.Tanggal}', '${a.ID_Siswa}')" class="w-8 h-8 bg-blue-50 border border-blue-200 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="app.deleteAbsensi('${a.Tanggal}', '${a.ID_Siswa}')" class="w-8 h-8 bg-red-50 border border-red-200 text-red-600 rounded hover:bg-red-600 hover:text-white transition" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+                return html;
+            },
+
+            // --- FUNGSI BARU EDIT/DELETE DETAIL ABSENSI ---
+            toggleCheckAllAbsensi: function(el) {
+                const checkboxes = document.querySelectorAll('.check-absensi');
+                checkboxes.forEach(cb => cb.checked = el.checked);
+            },
+            
+            editAbsensi: async function(tgl, idSiswa) {
+                const rec = this.attendance.find(a => a.Tanggal === tgl && a.ID_Siswa.toString() === idSiswa.toString());
+                if(!rec) return;
+                const { value: formValues } = await Swal.fire({
+                    title: 'Edit Absensi',
+                    html: `
+                        <p class="mb-4 text-sm font-bold text-white bg-brand-600 py-1.5 px-3 rounded-full inline-block">${rec.Nama} <br> ${this.formatIdDate(tgl)}</p>
+                        <select id="swal-edit-stat" class="swal2-select w-[80%] mb-3" onchange="document.getElementById('swal-edit-ket').style.display = this.value === 'Izin' ? 'block' : 'none'">
+                            <option value="Hadir" ${rec.Status==='Hadir'?'selected':''}>Hadir</option>
+                            <option value="Izin" ${rec.Status==='Izin'?'selected':''}>Izin</option>
+                            <option value="Alfa" ${rec.Status==='Alfa'?'selected':''}>Alfa</option>
+                        </select>
+                        <input id="swal-edit-ket" class="swal2-input w-[80%] mt-0" placeholder="Keterangan Izin" value="${rec.Keterangan}" style="display: ${rec.Status==='Izin'?'block':'none'}">
+                    `,
+                    showCancelButton: true, confirmButtonText: 'Update', confirmButtonColor: '#16a34a',
+                    preConfirm: () => {
+                        const s = document.getElementById('swal-edit-stat').value;
+                        const k = document.getElementById('swal-edit-ket').value;
+                        if(s === 'Izin' && (!k || k === '-')) { Swal.showValidationMessage('Keterangan izin wajib diisi!'); return false; }
+                        return { status: s, ket: s === 'Izin' ? k : '-' };
+                    }
+                });
+
+                if (formValues) {
+                    Swal.fire({ title: 'Menyimpan...', didOpen: () => { Swal.showLoading(); }});
+                    await this.apiCall({ action: 'update_absensi', data: { Tanggal: tgl, ID_Siswa: idSiswa, Status: formValues.status, Keterangan: formValues.ket } });
+                    await this.syncData();
+                }
+            },
+
+            deleteAbsensi: async function(tgl, idSiswa) {
+                const confirm = await Swal.fire({ title: 'Hapus data absensi ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
+                if(confirm.isConfirmed) {
+                    Swal.fire({ title: 'Menghapus...', didOpen: () => { Swal.showLoading(); }});
+                    await this.apiCall({ action: 'delete_absensi_batch', data: [{Tanggal: tgl, ID_Siswa: idSiswa}] });
+                    await this.syncData();
+                }
+            },
+
+            deleteSelectedAbsensi: async function() {
+                const checkboxes = document.querySelectorAll('.check-absensi:checked');
+                if(checkboxes.length === 0) return Swal.fire('Pilih Data', 'Centang data absensi yang ingin dihapus', 'info');
+                
+                const confirm = await Swal.fire({ title: `Hapus ${checkboxes.length} data absensi?`, text: "Data akan dihapus permanen!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
+                if(confirm.isConfirmed) {
+                    const toDelete = Array.from(checkboxes).map(cb => ({ Tanggal: cb.getAttribute('data-tgl'), ID_Siswa: cb.getAttribute('data-id') }));
+                    Swal.fire({ title: 'Menghapus...', didOpen: () => { Swal.showLoading(); }});
+                    await this.apiCall({ action: 'delete_absensi_batch', data: toDelete });
+                    await this.syncData();
+                }
             },
 
             buildRekapGrafik: function(s, e) {
@@ -594,7 +719,7 @@
                         this.charts.bar = new Chart(ctx, { type: 'bar', data: { labels: ['Mlatisari', 'Cilosari'], datasets: [{ label: 'Hadir', data: [stats.Mlatisari.Hadir, stats.Cilosari.Hadir], backgroundColor: '#16a34a' }, { label: 'Izin', data: [stats.Mlatisari.Izin, stats.Cilosari.Izin], backgroundColor: '#eab308' }, { label: 'Alfa', data: [stats.Mlatisari.Alfa, stats.Cilosari.Alfa], backgroundColor: '#ef4444' }] } });
                     }
                 }, 100);
-                return `<div class="bg-white p-6 rounded-2xl border"><h4 class="font-bold text-center mb-6">Grafik Kehadiran</h4><canvas id="barChartRekap" height="150"></canvas></div>`;
+                return `<div class="bg-white p-6 rounded-2xl border mt-6"><h4 class="font-bold text-center mb-6">Grafik Kehadiran</h4><canvas id="barChartRekap" height="150"></canvas></div>`;
             },
 
             buildRekapDetail: function(sDate, eDate) {
@@ -626,28 +751,104 @@
                 const ws = XLSX.utils.json_to_sheet(ex); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Rekap"); XLSX.writeFile(wb, `Rekap_Absensi.xlsx`);
             },
             exportToPDF: function() {
-                if (this.rekapViewMode === 'ringkasan') return Swal.fire('Peringatan', 'Buka tab Tabel Laporan dahulu', 'warning');
+                if (this.rekapViewMode === 'ringkasan' || this.rekapViewMode === 'detail-tabel') return Swal.fire('Peringatan', 'Buka tab Tabel Laporan dahulu', 'warning');
                 const { jsPDF } = window.jspdf; const doc = new jsPDF('landscape'); doc.text(`Rekap Absensi LPQ`, 14, 15);
                 const tables = document.querySelectorAll('#rekap-content-area table'); if(tables.length === 0) return;
                 let y = 25; tables.forEach((t, i) => { doc.text(`Kelompok ${i===0?'Mlatisari':'Cilosari'}`, 14, y); doc.autoTable({ html: t, startY: y + 4, styles: { fontSize: 8 } }); y = doc.lastAutoTable.finalY + 15; }); doc.save(`Rekap_Absensi.pdf`);
             },
 
+            // --- PERBAIKAN: DESAIN PRESENTASI SEPERTI FOTO ---
             showPresentationMode: function(mode) { this.presentasiMode = mode; document.getElementById('presentation-compare').classList.add('hidden'); document.getElementById('presentation-carousel').classList.add('hidden'); if(mode === 'banding') { document.getElementById('presentation-compare').classList.remove('hidden'); document.getElementById('presentation-compare').classList.add('flex'); } else { document.getElementById('presentation-carousel').classList.remove('hidden'); document.getElementById('presentation-carousel').classList.add('flex'); } this.renderPresentasiData(); },
+            
             renderPresentasiData: function() {
                 const att = this.getFilteredAttendance('pres-start', 'pres-end');
+                const sDate = document.getElementById('pres-start').value; const eDate = document.getElementById('pres-end').value;
+                
+                // Helper hitung pertemuan aktual
+                const getTotPert = (kel) => { const attK = att.filter(a=>a.Kelompok===kel); const jdwlK = this.jadwal.filter(j=>j.Tanggal>=sDate && j.Tanggal<=eDate && j.Kelompok===kel && j.Status==='Masuk'); return [...new Set([...attK.map(a=>a.Tanggal), ...jdwlK.map(j=>j.Tanggal)])].length || 1; };
+                const totM = getTotPert('Mlatisari'); const totC = getTotPert('Cilosari');
+
                 if(this.presentasiMode === 'banding') {
                     let s = { Mlatisari: {H:0}, Cilosari: {H:0} }; att.forEach(a => { if(s[a.Kelompok] && a.Status === 'Hadir') s[a.Kelompok].H++; });
                     const ctx = document.getElementById('doughnutChart'); if(ctx) { if(this.charts.doughnut) this.charts.doughnut.destroy(); this.charts.doughnut = new Chart(ctx, { type: 'doughnut', data: { labels: ['Hadir Mlatisari', 'Hadir Cilosari'], datasets: [{ data: [s.Mlatisari.H, s.Cilosari.H], backgroundColor: ['#155724', '#f59e0b'] }] } }); }
                 } else {
                     this.slides = []; const gM = this.students.filter(s => s.Kelompok === 'Mlatisari'); const gC = this.students.filter(s => s.Kelompok === 'Cilosari');
-                    this.slides.push(`<div class="bg-[#1a472a] text-white rounded-3xl p-10 mx-auto max-w-sm"><h2 class="text-3xl font-bold">MLATISARI</h2></div>`); gM.forEach(s => this.slides.push(this.generateSlideIndividu(s, att)));
-                    this.slides.push(`<div class="bg-[#1a472a] text-white rounded-3xl p-10 mx-auto max-w-sm"><h2 class="text-3xl font-bold">CILOSARI</h2></div>`); gC.forEach(s => this.slides.push(this.generateSlideIndividu(s, att)));
+                    
+                    // Slide Judul Mlatisari (Hijau Pekat)
+                    this.slides.push(`
+                        <div class="bg-[#1a8b44] text-white rounded-[32px] p-10 md:p-12 shadow-[0_10px_40px_-10px_rgba(26,139,68,0.5)] mx-auto w-full max-w-lg flex flex-col items-center justify-center relative min-h-[350px]">
+                            <i class="fa-solid fa-users text-6xl md:text-7xl mb-8 opacity-90"></i>
+                            <h2 class="text-2xl md:text-3xl font-extrabold mb-6 tracking-wide uppercase text-center w-full">CABERAWIT MLATISARI</h2>
+                            <p class="text-white font-semibold text-lg md:text-xl mb-3">Total: <span class="text-accent-400 font-extrabold">${gM.length}</span> Anggota</p>
+                            <p class="text-white font-semibold text-base md:text-lg mb-10">Pertemuan: <span class="text-[#86efac] font-extrabold">${totM}</span> Kali</p>
+                            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm font-bold text-white opacity-80" id="slide-counter-inner-0"></div>
+                        </div>
+                    `);
+                    gM.forEach(s => this.slides.push(this.generateSlideIndividu(s, att, totM)));
+
+                    // Slide Judul Cilosari
+                    this.slides.push(`
+                        <div class="bg-[#1a8b44] text-white rounded-[32px] p-10 md:p-12 shadow-[0_10px_40px_-10px_rgba(26,139,68,0.5)] mx-auto w-full max-w-lg flex flex-col items-center justify-center relative min-h-[350px]">
+                            <i class="fa-solid fa-users text-6xl md:text-7xl mb-8 opacity-90"></i>
+                            <h2 class="text-2xl md:text-3xl font-extrabold mb-6 tracking-wide uppercase text-center w-full">CABERAWIT CILOSARI</h2>
+                            <p class="text-white font-semibold text-lg md:text-xl mb-3">Total: <span class="text-accent-400 font-extrabold">${gC.length}</span> Anggota</p>
+                            <p class="text-white font-semibold text-base md:text-lg mb-10">Pertemuan: <span class="text-[#86efac] font-extrabold">${totC}</span> Kali</p>
+                            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm font-bold text-white opacity-80" id="slide-counter-inner-half"></div>
+                        </div>
+                    `);
+                    gC.forEach(s => this.slides.push(this.generateSlideIndividu(s, att, totC)));
+
                     this.currentSlideIndex = 0; this.renderSlide();
                 }
             },
-            generateSlideIndividu: function(s, attFiltered) { return `<div class="bg-white rounded-2xl flex flex-col items-center p-4"><h3 class="font-bold text-2xl">${s.Nama}</h3></div>`; },
-            renderSlide: function() { if(this.slides.length === 0) return; const c = document.getElementById('slide-content'); c.innerHTML = this.slides[this.currentSlideIndex]; document.getElementById('slide-counter').innerText = `${this.currentSlideIndex + 1} / ${this.slides.length}`; },
-            nextSlide: function() { this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length; this.renderSlide(); }, prevSlide: function() { this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length; this.renderSlide(); }
+            
+            // Slide Individu Desain Kartu Putih
+            generateSlideIndividu: function(s, attFiltered, total) { 
+                const sAtt = attFiltered.filter(a => a.ID_Siswa.toString() === s.ID_Siswa.toString());
+                const h = sAtt.filter(a=>a.Status==='Hadir').length; const i = sAtt.filter(a=>a.Status==='Izin').length; const a = sAtt.filter(a=>a.Status==='Alfa').length;
+                const initials = s.Nama.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+                
+                return `
+                <div class="bg-[#fcffff] border border-gray-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] rounded-[32px] flex flex-col items-center p-8 md:p-12 w-full max-w-2xl mx-auto relative min-h-[350px] justify-center">
+                    <div class="w-24 h-24 mb-6 rounded-full flex items-center justify-center text-white font-extrabold text-3xl shadow-md bg-[#1abc9c]">
+                        ${initials}
+                    </div>
+                    <h3 class="font-extrabold text-2xl text-[#1e293b] mb-2 text-center w-full line-clamp-1">${s.Nama}</h3>
+                    <p class="text-[11px] text-gray-500 mb-8 font-bold uppercase tracking-wider">Total: <span class="text-brand-600 font-extrabold">${total}x</span></p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 w-full">
+                        <div class="flex-1 bg-[#f0fdf4] border-2 border-[#86efac] rounded-2xl py-6 flex flex-col items-center justify-center shadow-sm">
+                            <span class="font-extrabold text-[#15803d] text-4xl mb-1">${Math.round((h/total)*100)}%</span>
+                            <span class="text-xs font-bold text-gray-800">Hadir</span>
+                            <span class="text-[10px] text-gray-500 mt-0.5 font-medium">${h}/${total}</span>
+                        </div>
+                        <div class="flex-1 bg-[#fefce8] border-2 border-[#fde047] rounded-2xl py-6 flex flex-col items-center justify-center shadow-sm">
+                            <span class="font-extrabold text-[#a16207] text-4xl mb-1">${Math.round((i/total)*100)}%</span>
+                            <span class="text-xs font-bold text-gray-800">Izin</span>
+                            <span class="text-[10px] text-gray-500 mt-0.5 font-medium">${i}/${total}</span>
+                        </div>
+                        <div class="flex-1 bg-[#fef2f2] border-2 border-[#fca5a5] rounded-2xl py-6 flex flex-col items-center justify-center shadow-sm">
+                            <span class="font-extrabold text-[#b91c1c] text-4xl mb-1">${Math.round((a/total)*100)}%</span>
+                            <span class="text-xs font-bold text-gray-800">Alfa</span>
+                            <span class="text-[10px] text-gray-500 mt-0.5 font-medium">${a}/${total}</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs font-bold text-gray-600" id="slide-counter-inner-${s.ID_Siswa}"></div>
+                </div>`; 
+            },
+            
+            renderSlide: function() { 
+                if(this.slides.length === 0) return; 
+                const c = document.getElementById('slide-content'); 
+                c.innerHTML = this.slides[this.currentSlideIndex]; 
+                
+                // Set text halaman di dalam inner box yang dirender JS
+                const counterContainers = c.querySelectorAll('[id^="slide-counter-inner"]');
+                counterContainers.forEach(el => { el.innerText = `${this.currentSlideIndex + 1} / ${this.slides.length}`; });
+            },
+            
+            nextSlide: function() { this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length; this.renderSlide(); }, 
+            prevSlide: function() { this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length; this.renderSlide(); }
         };
         document.addEventListener("DOMContentLoaded", () => { app.init(); });
     </script>
