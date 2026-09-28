@@ -379,25 +379,33 @@
                 const navBtns = document.querySelectorAll('.nav-btn');
                 
                 if(this.sidebarMinimized) { 
-                    sidebar.classList.replace('md:w-64', 'md:w-20'); 
-                    header.classList.replace('p-6', 'p-4');
-                    header.classList.add('justify-center');
+                    sidebar.classList.remove('md:w-64'); sidebar.classList.add('md:w-20'); 
+                    header.classList.remove('p-6'); header.classList.add('p-4', 'justify-center');
                     
-                    texts.forEach(t => { t.classList.remove('opacity-100'); t.classList.add('opacity-0', 'hidden'); }); 
-                    brand.classList.remove('opacity-100'); brand.classList.add('opacity-0', 'hidden');
-                    navBtns.forEach(btn => { btn.classList.replace('px-4', 'justify-center'); });
+                    texts.forEach(t => { t.classList.add('hidden'); }); 
+                    brand.classList.add('hidden');
                     
-                    icon.classList.replace('fa-chevron-left', 'fa-chevron-right'); 
+                    // PERBAIKAN: Memaksa padding hilang & ikon ditengah
+                    navBtns.forEach(btn => { 
+                        btn.classList.remove('px-4'); 
+                        btn.classList.add('px-0', 'justify-center'); 
+                    });
+                    
+                    icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); 
                 } else { 
-                    sidebar.classList.replace('md:w-20', 'md:w-64'); 
-                    header.classList.replace('p-4', 'p-6');
-                    header.classList.remove('justify-center');
+                    sidebar.classList.remove('md:w-20'); sidebar.classList.add('md:w-64'); 
+                    header.classList.remove('p-4', 'justify-center'); header.classList.add('p-6');
                     
-                    texts.forEach(t => { t.classList.remove('opacity-0', 'hidden'); t.classList.add('opacity-100'); }); 
-                    brand.classList.remove('opacity-0', 'hidden'); brand.classList.add('opacity-100');
-                    navBtns.forEach(btn => { btn.classList.replace('justify-center', 'px-4'); });
+                    texts.forEach(t => { t.classList.remove('hidden'); }); 
+                    brand.classList.remove('hidden');
                     
-                    icon.classList.replace('fa-chevron-right', 'fa-chevron-left'); 
+                    // PERBAIKAN: Mengembalikan padding & ikon ke kiri
+                    navBtns.forEach(btn => { 
+                        btn.classList.remove('px-0', 'justify-center'); 
+                        btn.classList.add('px-4'); 
+                    });
+                    
+                    icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); 
                 }
             },
 
